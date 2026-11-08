@@ -1,0 +1,56 @@
+min_version = "2026.11.3"
+
+[settings]
+experimental = true
+
+[tools]
+node = "26.13.0"
+pnpm = "10.34.9"
+hk = "2.11.1"
+pkl = "0.33.0"
+jactionlint = "2.5.0"
+shellcheck = "0.11.0"
+pitchfork = "2.33.1"
+
+[hooks]
+postinstall = "hk install --mise"
+
+# Dev servers run as pitchfork daemons: `mise daemons start|stop|status|logs`.
+[daemons.server]
+run = "exec pnpm --filter server dev"
+port = 3000
+ready_port = 3000
+
+[daemons.web]
+run = "exec pnpm --filter web exec vite --port 5173 --strictPort"
+port = 5173
+ready_port = 5173
+depends = ["server"]
+
+[tasks.install]
+description = "Install dependencies"
+run = "pnpm install"
+
+[tasks.dev]
+description = "Start dev servers as daemons (server + web)"
+run = "mise daemons start web"
+
+[tasks.build]
+description = "Build all packages"
+run = "pnpm -r build"
+
+[tasks.test]
+description = "Run tests in all packages"
+run = "pnpm -r test"
+
+[tasks.typecheck]
+description = "Typecheck all packages"
+run = "pnpm -r typecheck"
+
+[tasks.check]
+description = "Run every quality gate (same as CI)"
+run = "hk check --all"
+
+[tasks.fix]
+description = "Autofix formatting"
+run = "hk fix --all"

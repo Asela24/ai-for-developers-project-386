@@ -10,7 +10,16 @@
 
 ## Стек
 
-- Разное
+- Typescript, vite. shadcn/ui, react, tanstack router
+- Testing: vitest
+- Docker
+- Nodejs for backend
+- SDK is @hey-api/openapi-ts
+-  TypeSpec → OpenAPI
+  ├─ фронт: openapi-typescript + openapi-fetch (или hey-api / orval)
+  └─ бек:   Fastify + fastify-openapi-glue + openapi-typescript для типов
+            + Schemathesis в CI
+
 
 ## Установка
 

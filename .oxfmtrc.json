@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [
+    ".github/workflows/hexlet-check.yml",
+    "README.md",
+    "README_LOCAL.md",
+    "apps/web/src/routeTree.gen.ts",
+    "pnpm-lock.yaml"
+  ]
+}

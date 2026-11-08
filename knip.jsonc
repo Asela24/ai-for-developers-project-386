@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    "apps/web": {
+      // Route files are loaded by the TanStack Router plugin, not imported directly.
+      "entry": ["src/routes/**/*.tsx"],
+      // shadcn/ui: the CLI imports `@/lib/utils` from components it adds (components.json → aliases.utils).
+      "ignore": ["src/lib/utils.ts"],
+    },
+    "apps/server": {},
+  },
+  "ignoreIssues": {
+    // shadcn/ui components export variants helpers by convention.
+    "apps/web/src/components/ui/**": ["exports"],
+  },
+}
