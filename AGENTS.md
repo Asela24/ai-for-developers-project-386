@@ -24,3 +24,17 @@ pnpm --filter server exec vitest run src/app.test.ts   # single test file
 - Never edit, rename or delete `.github/workflows/hexlet-check.yml`.
 - Don't disable lint rules or weaken checks to make a change pass. Exceptions stay narrow and commented (see `.oxlintrc.json`, `knip.jsonc`, `.oxfmtrc.json`, `hk.pkl`).
 - Commits follow Conventional Commits (`feat(web): …`, `fix(server): …`, `chore: …`), enforced by commitlint in the `commit-msg` hook.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues of this repo, via `gh`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` + `docs/adr/` at the repo root (created lazily). See `docs/agents/domain.md`.
