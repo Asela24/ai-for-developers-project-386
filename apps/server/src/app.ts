@@ -38,8 +38,14 @@ const openApiCandidates = [
   "./openapi.yaml",
 ];
 
-const isValidationError = (error: unknown): boolean =>
-  typeof error === "object" && error !== null && "validation" in error && Boolean(error.validation);
+// Schema validation, malformed JSON, an unsupported content type, an oversized body…
+// every client error the framework raises is the one data_error of the specification.
+const isClientError = (error: unknown): boolean => {
+  if (typeof error !== "object" || error === null) return false;
+  if ("validation" in error && Boolean(error.validation)) return true;
+  const statusCode = "statusCode" in error ? Number(error.statusCode) : Number.NaN;
+  return statusCode >= 400 && statusCode < 500;
+};
 
 const openApiSpecPath = (): string => {
   const here = dirname(fileURLToPath(import.meta.url));
@@ -70,8 +76,12 @@ export const buildApp = ({ now = () => new Date() }: BuildAppOptions = {}) => {
     ajv: { customOptions: { coerceTypes: false } },
   });
 
+  // The contract only takes JSON bodies, and Fastify validates a body only for the content
+  // types its schema lists: a text/plain body would reach the handlers unchecked.
+  app.removeContentTypeParser("text/plain");
+
   app.setErrorHandler((error, _request, reply) => {
-    if (isValidationError(error)) {
+    if (isClientError(error)) {
       return reply.code(400).send(dataError);
     }
     return reply.send(error);
