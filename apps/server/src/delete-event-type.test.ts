@@ -55,7 +55,10 @@ const deleteEventType = (app: Injector, id: string) =>
 const upcomingGuests = async (app: Injector) => {
   const listed = await app.inject({ method: "GET", url: "/bookings" });
   expect(listed.statusCode).toBe(200);
-  return (listed.json() as Array<{ guestName: string }>).map((booking) => booking.guestName);
+  // The contract sets no list order.
+  return (listed.json() as Array<{ guestName: string }>)
+    .map((booking) => booking.guestName)
+    .toSorted();
 };
 
 const slotStatus = async (app: Injector, eventTypeId: string, start: string) => {

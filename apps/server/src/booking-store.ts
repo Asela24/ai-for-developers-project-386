@@ -27,11 +27,9 @@ export const createBookingStore = () => {
       bookings.push(reserved);
       return reserved;
     },
-    /** Bookings whose interval has not ended at `now` (in progress included), by start. */
+    /** Bookings whose interval has not ended at `now` (in progress included). */
     upcoming(now: Date): StoredBooking[] {
-      return bookings
-        .filter((booking) => booking.end > now)
-        .toSorted((a, b) => a.start.getTime() - b.start.getTime());
+      return bookings.filter((booking) => booking.end > now);
     },
     /** Removes every Booking of the Event type, ended ones included, freeing their intervals. */
     removeByEventType(eventTypeId: string): void {

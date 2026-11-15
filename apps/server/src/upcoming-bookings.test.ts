@@ -56,14 +56,17 @@ const ownerApp = async () => {
   return { app, clock };
 };
 
+// The contract sets no list order, so rows are compared sorted by Guest name.
 const upcoming = async (app: Awaited<ReturnType<typeof ownerApp>>["app"]) => {
   const listed = await app.inject({ method: "GET", url: "/bookings" });
   expect(listed.statusCode).toBe(200);
-  return (listed.json() as ListedBooking[]).map((booking) => ({
-    ...booking,
-    start: new Date(booking.start).toISOString(),
-    end: new Date(booking.end).toISOString(),
-  }));
+  return (listed.json() as ListedBooking[])
+    .map((booking) => ({
+      ...booking,
+      start: new Date(booking.start).toISOString(),
+      end: new Date(booking.end).toISOString(),
+    }))
+    .toSorted((a, b) => a.guestName.localeCompare(b.guestName));
 };
 
 it("lists Upcoming Bookings of every Event type with name, email, type and interval", async () => {

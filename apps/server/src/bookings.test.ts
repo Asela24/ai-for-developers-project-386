@@ -50,12 +50,13 @@ it("offers 60-minute Slots from 09:00 through 17:00 inside the 14-day window", a
   expect(JSON.stringify(slots)).not.toContain("guestEmail");
 });
 
+// The contract sets no list order: starts come back sorted here, earliest first.
 const slotStarts = async (app: Injector, eventTypeId: string) => {
   const listed = await app.inject({ method: "GET", url: `/event-types/${eventTypeId}/slots` });
   expect(listed.statusCode).toBe(200);
-  return (listed.json() as Array<{ start: string }>).map((slot) =>
-    new Date(slot.start).toISOString(),
-  );
+  return (listed.json() as Array<{ start: string }>)
+    .map((slot) => new Date(slot.start).toISOString())
+    .toSorted();
 };
 
 it("packs 45-minute Slots back-to-back so the last one ends by 18:00", async () => {
@@ -211,7 +212,8 @@ it("blocks an overlapping Slot of another Event type", async () => {
   ).json() as Array<{ start: string; status: string }>;
   const busy = halfSlots
     .filter((slot) => slot.status === "busy")
-    .map((slot) => new Date(slot.start).toISOString());
+    .map((slot) => new Date(slot.start).toISOString())
+    .toSorted();
   expect(busy).toEqual(["2026-11-16T09:00:00.000Z", "2026-11-16T09:30:00.000Z"]);
 });
 
