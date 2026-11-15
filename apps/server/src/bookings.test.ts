@@ -251,6 +251,36 @@ it("leaves one Booking when two overlapping creates race", async () => {
   expect(slots.filter((slot) => slot.status === "busy")).toHaveLength(1);
 });
 
+it("rejects a longer Booking that covers a shorter Booking of another Event type", async () => {
+  const half = { ...hour, id: "half", durationMinutes: 30 };
+  const app = await appWith(hour, half);
+  // 10:30–11:00 of "half" is booked first.
+  expect(
+    (await book(app, { ...booking, eventTypeId: "half", start: "2026-11-16T09:30:00.000Z" }))
+      .statusCode,
+  ).toBe(201);
+
+  // 10:00–11:00 of "hour" contains it.
+  const res = await book(app, booking);
+
+  expect(res.statusCode).toBe(409);
+  expect(res.json()).toEqual(conflict);
+});
+
+it("leaves one Booking when overlapping creates of two Event types race", async () => {
+  const half = { ...hour, id: "half", durationMinutes: 30 };
+  const app = await appWith(hour, half);
+
+  const results = await Promise.all([
+    book(app, booking),
+    book(app, { ...booking, eventTypeId: "half", start: "2026-11-16T09:30:00.000Z" }),
+  ]);
+
+  expect(results.map((res) => res.statusCode).toSorted()).toEqual([201, 409]);
+  const loser = results.find((res) => res.statusCode === 409);
+  expect(loser?.json()).toEqual(conflict);
+});
+
 it("lets the same name and email book again without any session", async () => {
   const app = await appWith(hour);
   expect((await book(app, booking)).statusCode).toBe(201);
