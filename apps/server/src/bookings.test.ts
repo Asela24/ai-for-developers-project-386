@@ -1,18 +1,13 @@
 import { expect, it } from "vitest";
 import { buildApp } from "./app.js";
-
-// Awaiting the app (it is thenable) changes its type, so helpers only ask for `inject`.
-type Injector = Pick<ReturnType<typeof buildApp>, "inject">;
-
-const hour = {
-  id: "hour",
-  name: "Час",
-  description: "Час на задачу",
-  durationMinutes: 60,
-};
-
-// 2026-11-15 08:00 Europe/Belgrade, before working hours, so the whole grid is offered.
-const beforeHours = new Date("2026-11-15T07:00:00.000Z");
+import {
+  beforeHours,
+  conflict,
+  dataError,
+  hour,
+  type Injector,
+  ownerApp,
+} from "./test-fixtures.js";
 
 it("offers 60-minute Slots from 09:00 through 17:00 inside the 14-day window", async () => {
   const app = buildApp({ now: () => beforeHours });
@@ -128,15 +123,6 @@ it("rejects Slots of an unknown Event type as a data error", async () => {
   });
 });
 
-const dataError = {
-  code: "data_error",
-  message: "Проверьте данные и попробуйте ещё раз.",
-};
-const conflict = {
-  code: "conflict",
-  message: "Это время уже занято. Выберите другое.",
-};
-
 const ten = "2026-11-16T09:00:00.000Z"; // 16 Nov 10:00 Belgrade
 const booking = {
   eventTypeId: "hour",
@@ -145,14 +131,7 @@ const booking = {
   guestEmail: "anna@example.com",
 };
 
-const appWith = async (...eventTypes: Array<typeof hour>) => {
-  const app = buildApp({ now: () => beforeHours });
-  for (const payload of eventTypes) {
-    const created = await app.inject({ method: "POST", url: "/event-types", payload });
-    expect(created.statusCode).toBe(201);
-  }
-  return app;
-};
+const appWith = async (...eventTypes: Array<typeof hour>) => (await ownerApp({ eventTypes })).app;
 
 const book = (app: Injector, payload: object) =>
   app.inject({ method: "POST", url: "/bookings", payload });

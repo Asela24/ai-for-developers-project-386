@@ -1,7 +1,5 @@
 import { expect, it } from "vitest";
-import { buildApp } from "./app.js";
-
-type Injector = Pick<ReturnType<typeof buildApp>, "inject">;
+import { beforeHours, dataError, type Injector, ownerApp, slotStatus } from "./test-fixtures.js";
 
 const intro = {
   id: "intro",
@@ -17,9 +15,6 @@ const review = {
   durationMinutes: 30,
 };
 
-// 2026-11-15 08:00 Europe/Belgrade (UTC+1), before working hours.
-const beforeHours = new Date("2026-11-15T07:00:00.000Z");
-
 const anyaIntro = {
   eventTypeId: "intro",
   start: "2026-11-16T09:00:00.000Z", // 16 Nov 10:00–11:00 Belgrade
@@ -34,20 +29,8 @@ const borisReview = {
   guestEmail: "boris@example.com",
 };
 
-// The clock is a variable so a test can move "now" after the Bookings exist.
-const ownerApp = async () => {
-  const clock = { now: beforeHours };
-  const app = buildApp({ now: () => clock.now });
-  for (const payload of [intro, review]) {
-    expect((await app.inject({ method: "POST", url: "/event-types", payload })).statusCode).toBe(
-      201,
-    );
-  }
-  for (const payload of [anyaIntro, borisReview]) {
-    expect((await app.inject({ method: "POST", url: "/bookings", payload })).statusCode).toBe(201);
-  }
-  return { app, clock };
-};
+const bookedApp = () =>
+  ownerApp({ eventTypes: [intro, review], bookings: [anyaIntro, borisReview] });
 
 const deleteEventType = (app: Injector, id: string) =>
   app.inject({ method: "DELETE", url: `/event-types/${id}` });
@@ -61,15 +44,8 @@ const upcomingGuests = async (app: Injector) => {
     .toSorted();
 };
 
-const slotStatus = async (app: Injector, eventTypeId: string, start: string) => {
-  const listed = await app.inject({ method: "GET", url: `/event-types/${eventTypeId}/slots` });
-  expect(listed.statusCode).toBe(200);
-  const slots = listed.json() as Array<{ start: string; status: string }>;
-  return slots.find((slot) => new Date(slot.start).toISOString() === start)?.status;
-};
-
 it("deletes an Event type that has Bookings, and those Bookings with it", async () => {
-  const { app } = await ownerApp();
+  const { app } = await bookedApp();
 
   const deleted = await deleteEventType(app, "intro");
 
@@ -78,7 +54,7 @@ it("deletes an Event type that has Bookings, and those Bookings with it", async 
 });
 
 it("removes the deleted Event type from what a Guest reads", async () => {
-  const { app } = await ownerApp();
+  const { app } = await bookedApp();
 
   await deleteEventType(app, "intro");
 
@@ -86,14 +62,14 @@ it("removes the deleted Event type from what a Guest reads", async () => {
   expect(listed.json()).toEqual([review]);
   const slots = await app.inject({ method: "GET", url: "/event-types/intro/slots" });
   expect(slots.statusCode).toBe(400);
-  expect(slots.json()).toMatchObject({ code: "data_error" });
+  expect(slots.json()).toEqual(dataError);
   const booking = await app.inject({ method: "POST", url: "/bookings", payload: anyaIntro });
   expect(booking.statusCode).toBe(400);
-  expect(booking.json()).toMatchObject({ code: "data_error" });
+  expect(booking.json()).toEqual(dataError);
 });
 
 it("frees the intervals of the deleted Bookings for other Event types", async () => {
-  const { app } = await ownerApp();
+  const { app } = await bookedApp();
   // 10:00 and 10:30 of 16 Nov sit inside Anya's 10:00–11:00 intro Booking.
   expect(await slotStatus(app, "review", "2026-11-16T09:30:00.000Z")).toBe("busy");
 
@@ -109,7 +85,7 @@ it("frees the intervals of the deleted Bookings for other Event types", async ()
 });
 
 it("keeps the Bookings of other Event types busy", async () => {
-  const { app } = await ownerApp();
+  const { app } = await bookedApp();
 
   await deleteEventType(app, "intro");
 
@@ -117,7 +93,7 @@ it("keeps the Bookings of other Event types busy", async () => {
 });
 
 it("deletes ended Bookings of the Event type too", async () => {
-  const { app, clock } = await ownerApp();
+  const { app, clock } = await bookedApp();
   // After Anya's intro has ended but before Boris's review starts.
   clock.now = new Date("2026-11-16T12:00:00.000Z");
   expect(await upcomingGuests(app)).toEqual(["Борис"]);
@@ -131,14 +107,11 @@ it("deletes ended Bookings of the Event type too", async () => {
 });
 
 it("answers an unknown Event type id with data_error", async () => {
-  const { app } = await ownerApp();
+  const { app } = await bookedApp();
 
   const deleted = await deleteEventType(app, "no-such-type");
 
   expect(deleted.statusCode).toBe(400);
-  expect(deleted.json()).toEqual({
-    code: "data_error",
-    message: "Проверьте данные и попробуйте ещё раз.",
-  });
+  expect(deleted.json()).toEqual(dataError);
   expect(await upcomingGuests(app)).toEqual(["Аня", "Борис"]);
 });

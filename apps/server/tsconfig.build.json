@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["src/**/*.test.ts", "src/booking-rule-probe.ts"]
+  "exclude": ["src/**/*.test.ts", "src/test-fixtures.ts", "src/booking-rule-probe.ts"]
 }

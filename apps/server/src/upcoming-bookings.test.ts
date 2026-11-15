@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { buildApp } from "./app.js";
+import { beforeHours, type Injector, ownerApp } from "./test-fixtures.js";
 
 type ListedBooking = {
   id: string;
@@ -24,9 +24,6 @@ const review = {
   durationMinutes: 30,
 };
 
-// 2026-11-15 08:00 Europe/Belgrade (UTC+1), before working hours.
-const beforeHours = new Date("2026-11-15T07:00:00.000Z");
-
 const anya = {
   eventTypeId: "intro",
   start: "2026-11-16T09:00:00.000Z", // 16 Nov 10:00–11:00 Belgrade
@@ -41,23 +38,10 @@ const boris = {
   guestEmail: "boris@example.com",
 };
 
-// The clock is a variable so a test can move "now" after the Bookings exist.
-const ownerApp = async () => {
-  const clock = { now: beforeHours };
-  const app = buildApp({ now: () => clock.now });
-  for (const payload of [intro, review]) {
-    expect((await app.inject({ method: "POST", url: "/event-types", payload })).statusCode).toBe(
-      201,
-    );
-  }
-  for (const payload of [boris, anya]) {
-    expect((await app.inject({ method: "POST", url: "/bookings", payload })).statusCode).toBe(201);
-  }
-  return { app, clock };
-};
+const bookedApp = () => ownerApp({ eventTypes: [intro, review], bookings: [boris, anya] });
 
 // The contract sets no list order, so rows are compared sorted by Guest name.
-const upcoming = async (app: Awaited<ReturnType<typeof ownerApp>>["app"]) => {
+const upcoming = async (app: Injector) => {
   const listed = await app.inject({ method: "GET", url: "/bookings" });
   expect(listed.statusCode).toBe(200);
   return (listed.json() as ListedBooking[])
@@ -70,7 +54,7 @@ const upcoming = async (app: Awaited<ReturnType<typeof ownerApp>>["app"]) => {
 };
 
 it("lists Upcoming Bookings of every Event type with name, email, type and interval", async () => {
-  const { app } = await ownerApp();
+  const { app } = await bookedApp();
 
   const bookings = await upcoming(app);
 
@@ -95,7 +79,7 @@ it("lists Upcoming Bookings of every Event type with name, email, type and inter
 });
 
 it("keeps a Booking in progress and drops an ended one without deleting it", async () => {
-  const { app, clock } = await ownerApp();
+  const { app, clock } = await bookedApp();
 
   // 16 Nov 10:30 Belgrade: Anya's 10:00–11:00 is in progress.
   clock.now = new Date("2026-11-16T09:30:00.000Z");
@@ -111,7 +95,7 @@ it("keeps a Booking in progress and drops an ended one without deleting it", asy
 });
 
 it("gives each listed Booking its own id", async () => {
-  const { app } = await ownerApp();
+  const { app } = await bookedApp();
 
   const ids = (await upcoming(app)).map((booking) => booking.id);
 
@@ -120,7 +104,7 @@ it("gives each listed Booking its own id", async () => {
 });
 
 it("needs no session to read the list", async () => {
-  const { app } = await ownerApp();
+  const { app } = await bookedApp();
 
   const listed = await app.inject({
     method: "GET",
