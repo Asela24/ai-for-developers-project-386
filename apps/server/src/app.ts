@@ -18,6 +18,7 @@ type Slot = components["schemas"]["Slot"];
 type SlotsPath = operations["listSlots"]["parameters"]["path"];
 type CreateBooking = components["schemas"]["CreateBooking"];
 type Booking = components["schemas"]["Booking"];
+type DeleteBookingPath = operations["deleteBooking"]["parameters"]["path"];
 
 const dataError = {
   code: "data_error",
@@ -135,6 +136,14 @@ export const buildApp = ({ now = () => new Date() }: BuildAppOptions = {}) => {
         return toBooking(reserved);
       },
       listUpcomingBookings: () => bookings.upcoming(now()).map(toBooking),
+      deleteBooking: (request: FastifyRequest, reply: FastifyReply) => {
+        const { id } = request.params as DeleteBookingPath;
+        if (!bookings.remove(id)) {
+          reply.code(400);
+          return dataError;
+        }
+        return reply.code(204).send();
+      },
     },
   });
 

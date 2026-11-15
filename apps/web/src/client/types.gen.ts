@@ -102,6 +102,33 @@ export type CreateBookingResponses = {
 
 export type CreateBookingResponse = CreateBookingResponses[keyof CreateBookingResponses];
 
+export type DeleteBookingData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/bookings/{id}';
+};
+
+export type DeleteBookingErrors = {
+    /**
+     * The server could not understand the request due to invalid syntax.
+     */
+    400: Failure;
+};
+
+export type DeleteBookingError = DeleteBookingErrors[keyof DeleteBookingErrors];
+
+export type DeleteBookingResponses = {
+    /**
+     * There is no content to send for this request, but the headers may be useful.
+     */
+    204: void;
+};
+
+export type DeleteBookingResponse = DeleteBookingResponses[keyof DeleteBookingResponses];
+
 export type ListEventTypesData = {
     body?: never;
     path?: never;
