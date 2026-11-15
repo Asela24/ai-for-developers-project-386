@@ -15,11 +15,11 @@ const createEventType = async (id: string, name: string, description: string) =>
 
 test("a Slot booked through another Event type shows as busy", async ({ page }) => {
   // Names, descriptions and duration differ from other scenarios on the same server.
-  await createEventType("call", "Созвон", "Короткий созвон по плану");
+  await createEventType("onboarding", "Онбординг", "Первые шаги нового участника");
   await createEventType("code-review", "Ревью кода", "Ревью pull request");
 
-  // Book the last free Slot of "call"; other scenarios take the first ones.
-  const slots = (await (await fetch(`${api}/event-types/call/slots`)).json()) as Array<{
+  // Book the last free Slot of "onboarding"; other scenarios take the first ones.
+  const slots = (await (await fetch(`${api}/event-types/onboarding/slots`)).json()) as Array<{
     start: string;
     status: string;
   }>;
@@ -30,7 +30,7 @@ test("a Slot booked through another Event type shows as busy", async ({ page }) 
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      eventTypeId: "call",
+      eventTypeId: "onboarding",
       start,
       guestName: "Анна",
       guestEmail: "anna@example.com",

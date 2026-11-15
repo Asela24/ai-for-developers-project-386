@@ -25,7 +25,7 @@ it("offers 60-minute Slots from 09:00 through 17:00 inside the 14-day window", a
   const slots = listed.json() as Array<{ start: string; end: string; status: string }>;
   const starts = slots.map((slot) => new Date(slot.start).toISOString());
 
-  // 09:00–17:00 packed by 60 minutes is 9 starts, for 14 calendar days: 15 Nov through 28 Nov.
+  // 09:00–17:00 packed by 60 minutes is 9 starts, for 14 days: 15 Nov through 28 Nov.
   expect(starts).toHaveLength(126);
   expect(starts).toContain("2026-11-15T08:00:00.000Z");
   expect(starts).toContain("2026-11-15T16:00:00.000Z");
