@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { cn } from "cn";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createBooking, listEventTypes, listSlots, type EventType, type Slot } from "@/client";
-import { DurationPill, OwnerBadge } from "@/components/owner-badge";
+import { Duration, OwnerBadge } from "@/components/owner-badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { monthGrid, monthsOf, slotsByDay, zone } from "@/lib/booking-days";
 
@@ -38,8 +38,9 @@ const atNoon = (key: string) => new Date(`${key}T12:00:00Z`);
 const interval = (slot: Slot) =>
   `${timeLabel.format(new Date(slot.start))} – ${timeLabel.format(new Date(slot.end))}`;
 
-const card = "rounded-2xl border bg-card p-6 shadow-xs";
-const inputClass = "h-10 w-full rounded-lg border border-input bg-background px-3 text-sm";
+const sectionHeading = "text-sm font-medium";
+const inputClass =
+  "h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30";
 
 function EventTypeView() {
   const { eventTypeId } = Route.useParams();
@@ -112,46 +113,53 @@ function EventTypeView() {
   };
 
   return (
-    <main className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:px-6">
-      <h1 className="text-3xl font-bold tracking-tight">{eventType?.name ?? ""}</h1>
+    <main className="mx-auto max-w-5xl space-y-10 px-4 py-14 sm:px-6">
+      <h1 className="text-3xl font-semibold tracking-tight">{eventType?.name ?? ""}</h1>
 
       {notice && (
-        <p role="status" className="rounded-xl border border-primary/30 bg-orange-50 px-4 py-3">
+        <p role="status" className="border-l-2 border-primary pl-4 text-sm">
           {notice}
         </p>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.5fr_1.2fr]">
-        <aside className={cn(card, "space-y-4")}>
+      <div className="grid gap-12 lg:grid-cols-[1fr_1.5fr_1.2fr] lg:gap-10">
+        <aside className="space-y-6">
           <OwnerBadge />
           {eventType && (
-            <>
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-lg font-semibold">{eventType.name}</p>
-                <DurationPill minutes={eventType.durationMinutes} />
+            <div className="space-y-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="font-medium">{eventType.name}</p>
+                <Duration minutes={eventType.durationMinutes} />
               </div>
-              <p className="text-sm">{eventType.description}</p>
-            </>
+              <p className="text-sm text-muted-foreground">{eventType.description}</p>
+            </div>
           )}
-          <div className="rounded-xl bg-secondary/60 px-4 py-3 text-sm">
-            <p className="text-muted-foreground">Выбранная дата</p>
-            <p>{shownDay ? longDayLabel.format(atNoon(shownDay)) : "Дата не выбрана"}</p>
-          </div>
-          <div className="rounded-xl bg-secondary/60 px-4 py-3 text-sm">
-            <p className="text-muted-foreground">Выбранное время</p>
-            <p>{chosen ? interval(chosen) : "Время не выбрано"}</p>
-          </div>
+          <dl className="space-y-4 border-t pt-6 text-sm">
+            <div className="space-y-1">
+              <dt className="text-muted-foreground">Выбранная дата</dt>
+              <dd>{shownDay ? longDayLabel.format(atNoon(shownDay)) : "Дата не выбрана"}</dd>
+            </div>
+            <div className="space-y-1">
+              <dt className="text-muted-foreground">Выбранное время</dt>
+              <dd>{chosen ? interval(chosen) : "Время не выбрано"}</dd>
+            </div>
+          </dl>
         </aside>
 
-        <section aria-labelledby="days-heading" className={cn(card, "space-y-4")}>
+        <section aria-labelledby="days-heading" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 id="days-heading" className="text-lg font-semibold">
+            <h2 id="days-heading" className={sectionHeading}>
               Дата
             </h2>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-1">
+              {shownMonth && (
+                <p className="mr-2 text-sm text-muted-foreground">
+                  {monthLabel.format(atNoon(`${shownMonth}-15`))}
+                </p>
+              )}
               <Button
-                variant="outline"
-                size="icon-lg"
+                variant="ghost"
+                size="icon"
                 aria-label="Предыдущий месяц"
                 disabled={monthIndex <= 0}
                 onClick={() => setMonth(months[monthIndex - 1])}
@@ -159,8 +167,8 @@ function EventTypeView() {
                 ←
               </Button>
               <Button
-                variant="outline"
-                size="icon-lg"
+                variant="ghost"
+                size="icon"
                 aria-label="Следующий месяц"
                 disabled={monthIndex < 0 || monthIndex >= months.length - 1}
                 onClick={() => setMonth(months[monthIndex + 1])}
@@ -169,8 +177,7 @@ function EventTypeView() {
               </Button>
             </div>
           </div>
-          {shownMonth && <p className="text-sm">{monthLabel.format(atNoon(`${shownMonth}-15`))}</p>}
-          <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
             {weekdays.map((weekday) => (
               <span key={weekday}>{weekday}</span>
             ))}
@@ -192,17 +199,20 @@ function EventTypeView() {
                       aria-pressed={selected}
                       onClick={() => pickDay(cell.date)}
                       className={cn(
-                        "flex aspect-square flex-col items-center justify-center rounded-lg border text-sm transition",
-                        cellSlots
-                          ? "bg-card hover:border-primary/60"
-                          : "border-transparent bg-muted text-muted-foreground/70",
-                        selected && "border-primary bg-orange-50 font-semibold",
-                        !cell.inMonth && !cellSlots && "opacity-60",
+                        "flex aspect-square flex-col items-center justify-center rounded-md text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+                        cellSlots ? "hover:bg-muted" : "text-muted-foreground/50",
+                        selected && "bg-primary text-primary-foreground hover:bg-primary",
+                        !cell.inMonth && !cellSlots && "opacity-40",
                       )}
                     >
                       {cell.day}
                       {cellSlots && (
-                        <span className="text-[0.65rem] font-normal text-muted-foreground">
+                        <span
+                          className={cn(
+                            "text-[0.65rem]",
+                            selected ? "text-primary-foreground/80" : "text-muted-foreground",
+                          )}
+                        >
                           {`${free} св.`}
                         </span>
                       )}
@@ -214,47 +224,48 @@ function EventTypeView() {
         </section>
 
         {step === "slot" ? (
-          <section aria-labelledby="slots-heading" className={cn(card, "flex flex-col gap-4")}>
-            <h2 id="slots-heading" className="text-lg font-semibold">
+          <section aria-labelledby="slots-heading" className="flex flex-col gap-4">
+            <h2 id="slots-heading" className={sectionHeading}>
               Статус слотов
             </h2>
-            <ul className="max-h-96 space-y-2 overflow-y-auto pr-1">
+            <ul className="max-h-96 divide-y overflow-y-auto border-y">
               {daySlots.map((slot) => {
                 const time = timeLabel.format(new Date(slot.start));
                 const busy = slot.status === "busy";
+                const picked = chosen?.start === slot.start;
                 return (
                   <li key={slot.start}>
                     <button
                       type="button"
                       disabled={busy}
                       aria-label={busy ? `${time} занято` : time}
-                      aria-pressed={chosen?.start === slot.start}
+                      aria-pressed={picked}
                       onClick={() => {
                         setChosen(slot);
                         setNotice("");
                       }}
                       className={cn(
-                        "flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm transition",
-                        busy ? "bg-muted text-muted-foreground" : "bg-card hover:border-primary/60",
-                        chosen?.start === slot.start && "border-primary bg-orange-50",
+                        "flex w-full items-center justify-between px-3 py-2.5 text-sm tabular-nums outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+                        busy ? "bg-muted text-muted-foreground" : "hover:bg-muted",
+                        picked && "bg-accent font-medium text-accent-foreground hover:bg-accent",
                       )}
                     >
                       <span>{interval(slot)}</span>
-                      <span className="text-xs font-semibold">{busy ? "Занято" : "Свободно"}</span>
+                      <span className="text-xs">{busy ? "Занято" : "Свободно"}</span>
                     </button>
                   </li>
                 );
               })}
             </ul>
-            <div className="mt-auto grid grid-cols-2 gap-3">
+            <div className="mt-auto flex justify-end gap-2">
               <Link
                 to="/event-types"
-                className={buttonVariants({ variant: "outline", className: "h-10 rounded-xl" })}
+                className={buttonVariants({ variant: "ghost", className: "h-9 px-4" })}
               >
                 Назад
               </Link>
               <Button
-                className="h-10 rounded-xl"
+                className="h-9 px-4"
                 disabled={!chosen}
                 onClick={() => {
                   setFailure("");
@@ -269,13 +280,13 @@ function EventTypeView() {
           <form
             aria-labelledby="guest-heading"
             onSubmit={(event) => void submit(event)}
-            className={cn(card, "flex flex-col gap-4")}
+            className="flex flex-col gap-4"
           >
-            <h2 id="guest-heading" className="text-lg font-semibold">
+            <h2 id="guest-heading" className={sectionHeading}>
               Ваши данные
             </h2>
-            <label className="block space-y-1 text-sm">
-              <span>Имя</span>
+            <label className="block space-y-1.5 text-sm">
+              <span className="text-muted-foreground">Имя</span>
               <input
                 className={inputClass}
                 required
@@ -284,8 +295,8 @@ function EventTypeView() {
                 onChange={(event) => setGuestName(event.target.value)}
               />
             </label>
-            <label className="block space-y-1 text-sm">
-              <span>Почта</span>
+            <label className="block space-y-1.5 text-sm">
+              <span className="text-muted-foreground">Почта</span>
               <input
                 className={inputClass}
                 type="email"
@@ -300,16 +311,16 @@ function EventTypeView() {
                 {failure}
               </p>
             )}
-            <div className="mt-auto grid grid-cols-2 gap-3">
+            <div className="mt-auto flex justify-end gap-2">
               <Button
                 type="button"
-                variant="outline"
-                className="h-10 rounded-xl"
+                variant="ghost"
+                className="h-9 px-4"
                 onClick={() => setStep("slot")}
               >
                 Назад
               </Button>
-              <Button type="submit" className="h-10 rounded-xl">
+              <Button type="submit" className="h-9 px-4">
                 Забронировать
               </Button>
             </div>

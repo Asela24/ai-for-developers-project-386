@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { listEventTypes, type EventType } from "@/client";
-import { DurationPill, OwnerBadge } from "@/components/owner-badge";
+import { Duration, OwnerBadge } from "@/components/owner-badge";
 
 export const Route = createFileRoute("/event-types/")({ component: Catalog });
 
@@ -19,29 +19,33 @@ function Catalog() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 px-4 py-10 sm:px-6">
-      <header className="space-y-4 rounded-2xl border bg-card p-6 shadow-xs">
+    <main className="mx-auto max-w-3xl space-y-10 px-4 py-14 sm:px-6">
+      <header className="space-y-6">
         <OwnerBadge />
-        <h1 className="text-3xl font-bold tracking-tight">Выберите тип события</h1>
-        <p className="text-sm text-muted-foreground">
-          Нажмите на карточку, чтобы выбрать день и свободный Slot.
-        </p>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight">Выберите тип события</h1>
+          <p className="text-sm text-muted-foreground">
+            Нажмите на карточку, чтобы выбрать день и свободный Slot.
+          </p>
+        </div>
       </header>
 
-      <ul className="grid gap-4 sm:grid-cols-2">
+      <ul className="divide-y border-y">
         {eventTypes.map((eventType) => (
           <li key={eventType.id}>
             <Link
               to="/event-types/$eventTypeId"
               params={{ eventTypeId: eventType.id }}
               aria-label={eventType.name}
-              className="block h-full space-y-3 rounded-2xl border bg-card p-6 shadow-xs transition hover:border-primary/50 hover:shadow-md"
+              className="group flex items-start justify-between gap-6 py-5 outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <div className="flex items-start justify-between gap-3">
-                <h2 className="text-lg font-semibold">{eventType.name}</h2>
-                <DurationPill minutes={eventType.durationMinutes} />
+              <div className="space-y-1">
+                <h2 className="font-medium transition-colors group-hover:text-primary">
+                  {eventType.name}
+                </h2>
+                <p className="text-sm text-muted-foreground">{eventType.description}</p>
               </div>
-              <p className="text-sm text-muted-foreground">{eventType.description}</p>
+              <Duration minutes={eventType.durationMinutes} />
             </Link>
           </li>
         ))}

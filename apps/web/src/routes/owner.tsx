@@ -10,7 +10,7 @@ import {
   type EventType,
   type OwnerBooking,
 } from "@/client";
-import { DurationPill, OwnerBadge } from "@/components/owner-badge";
+import { Duration, OwnerBadge } from "@/components/owner-badge";
 import { Button } from "@/components/ui/button";
 import { zone } from "@/lib/booking-days";
 
@@ -42,8 +42,10 @@ const failureMessage = (error: unknown): string => {
   }
   return fallbackFailure;
 };
-const card = "rounded-2xl border bg-card p-6 shadow-xs";
-const inputClass = "h-10 w-full rounded-lg border border-input bg-background px-3 text-sm";
+const sectionHeading = "text-sm font-medium";
+const inputClass =
+  "h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30";
+const quietAction = "text-muted-foreground hover:bg-accent hover:text-accent-foreground";
 const emptyDraft = { id: "", name: "", description: "", durationMinutes: "" };
 
 function OwnerPage() {
@@ -98,49 +100,46 @@ function OwnerPage() {
   });
 
   return (
-    <main className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:px-6">
+    <main className="mx-auto max-w-5xl space-y-10 px-4 py-14 sm:px-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Owner</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Owner</h1>
         <OwnerBadge />
       </header>
 
       {failure && (
-        <p
-          role="alert"
-          className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-destructive"
-        >
+        <p role="alert" className="border-l-2 border-destructive pl-4 text-sm text-destructive">
           {failure}
         </p>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.6fr]">
-        <div className="space-y-6">
+      <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
+        <div className="space-y-12">
           <form
             aria-labelledby="new-type-heading"
             onSubmit={(event) => void create(event)}
-            className={cn(card, "space-y-4")}
+            className="space-y-4"
           >
-            <h2 id="new-type-heading" className="text-lg font-semibold">
+            <h2 id="new-type-heading" className={sectionHeading}>
               Новый тип события
             </h2>
-            <label className="block space-y-1 text-sm">
-              <span>Id</span>
+            <label className="block space-y-1.5 text-sm">
+              <span className="text-muted-foreground">Id</span>
               <input className={inputClass} required {...field("id")} />
             </label>
-            <label className="block space-y-1 text-sm">
-              <span>Название</span>
+            <label className="block space-y-1.5 text-sm">
+              <span className="text-muted-foreground">Название</span>
               <input className={inputClass} required {...field("name")} />
             </label>
-            <label className="block space-y-1 text-sm">
-              <span>Описание</span>
+            <label className="block space-y-1.5 text-sm">
+              <span className="text-muted-foreground">Описание</span>
               <textarea
                 className={cn(inputClass, "h-20 py-2")}
                 required
                 {...field("description")}
               />
             </label>
-            <label className="block space-y-1 text-sm">
-              <span>Длительность, минут</span>
+            <label className="block space-y-1.5 text-sm">
+              <span className="text-muted-foreground">Длительность, минут</span>
               <input
                 className={inputClass}
                 type="number"
@@ -149,28 +148,28 @@ function OwnerPage() {
                 {...field("durationMinutes")}
               />
             </label>
-            <Button type="submit" className="h-10 w-full rounded-xl">
+            <Button type="submit" className="h-9 px-4">
               Создать
             </Button>
           </form>
 
-          <section aria-labelledby="types-heading" className={cn(card, "space-y-4")}>
-            <h2 id="types-heading" className="text-lg font-semibold">
+          <section aria-labelledby="types-heading" className="space-y-3">
+            <h2 id="types-heading" className={sectionHeading}>
               Типы событий
             </h2>
             {eventTypes.length === 0 && (
               <p className="text-sm text-muted-foreground">Типов событий пока нет.</p>
             )}
-            <ul className="space-y-3">
+            <ul className="divide-y border-y">
               {eventTypes.map((eventType) => (
-                <li key={eventType.id} className="space-y-2 rounded-xl border p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="font-semibold">{eventType.name}</p>
-                    <DurationPill minutes={eventType.durationMinutes} />
+                <li key={eventType.id} className="space-y-2 py-4">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="font-medium">{eventType.name}</p>
+                    <Duration minutes={eventType.durationMinutes} />
                   </div>
                   <p className="text-sm text-muted-foreground">{eventType.description}</p>
                   {confirming === eventType.id ? (
-                    <div className="space-y-2 rounded-lg bg-destructive/5 p-3 text-sm">
+                    <div className="space-y-2 pt-1 text-sm">
                       <p>Вместе с типом удалятся все его бронирования.</p>
                       <div className="flex flex-wrap gap-2">
                         <Button
@@ -182,13 +181,17 @@ function OwnerPage() {
                         >
                           Удалить вместе с бронированиями
                         </Button>
-                        <Button variant="outline" onClick={() => setConfirming(undefined)}>
+                        <Button variant="ghost" onClick={() => setConfirming(undefined)}>
                           Отмена
                         </Button>
                       </div>
                     </div>
                   ) : (
-                    <Button variant="outline" onClick={() => setConfirming(eventType.id)}>
+                    <Button
+                      variant="ghost"
+                      className={cn("-ml-2.5", quietAction)}
+                      onClick={() => setConfirming(eventType.id)}
+                    >
                       Удалить тип
                     </Button>
                   )}
@@ -198,29 +201,30 @@ function OwnerPage() {
           </section>
         </div>
 
-        <section aria-labelledby="upcoming-heading" className={cn(card, "space-y-4")}>
-          <h2 id="upcoming-heading" className="text-lg font-semibold">
+        <section aria-labelledby="upcoming-heading" className="space-y-3">
+          <h2 id="upcoming-heading" className={sectionHeading}>
             Предстоящие бронирования
           </h2>
           {bookings.length === 0 && (
             <p className="text-sm text-muted-foreground">Предстоящих бронирований нет.</p>
           )}
-          <ul className="space-y-3">
+          <ul className="divide-y border-y">
             {bookings.map((booking) => (
               <li
                 key={booking.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4"
+                className="flex flex-wrap items-center justify-between gap-3 py-4"
               >
-                <div className="space-y-1 text-sm">
-                  <p className="font-semibold">{booking.guestName}</p>
+                <div className="space-y-0.5 text-sm">
+                  <p className="font-medium">{booking.guestName}</p>
                   <p className="text-muted-foreground">{booking.guestEmail}</p>
-                  <p>
-                    <span className="font-medium">{typeName(booking.eventTypeId)}</span>
+                  <p className="text-muted-foreground">
+                    <span className="text-foreground">{typeName(booking.eventTypeId)}</span>
                     {` · ${interval(booking)}`}
                   </p>
                 </div>
                 <Button
-                  variant="destructive"
+                  variant="ghost"
+                  className={quietAction}
                   onClick={() => void act(deleteBooking({ path: { id: booking.id } }))}
                 >
                   Удалить бронирование
