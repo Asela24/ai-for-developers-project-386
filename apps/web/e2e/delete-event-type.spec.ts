@@ -24,7 +24,7 @@ test("an Event type the Owner deleted with its Bookings is gone from the Guest p
     "retired-type",
     "Стратегическая сессия",
     "Планирование квартала целиком",
-    90,
+    105,
   );
   // Stays, so the reloaded page shows it has loaded the list.
   await createEventType("kept-type", "Ретроспектива", "Итоги прошедшего спринта", 75);
