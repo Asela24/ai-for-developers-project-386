@@ -4,7 +4,40 @@ info:
   version: 0.0.0
 tags:
   - name: Event types
+  - name: Slots
+  - name: Bookings
 paths:
+  /bookings:
+    post:
+      operationId: createBooking
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Failure'
+        '409':
+          description: The request conflicts with the current state of the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Failure'
+      tags:
+        - Bookings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBooking'
   /event-types:
     get:
       operationId: listEventTypes
@@ -44,8 +77,81 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateEventType'
+  /event-types/{eventTypeId}/slots:
+    get:
+      operationId: listSlots
+      parameters:
+        - name: eventTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Slot'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Failure'
+      tags:
+        - Slots
 components:
   schemas:
+    Booking:
+      type: object
+      required:
+        - eventTypeId
+        - start
+        - end
+        - guestName
+        - guestEmail
+      properties:
+        eventTypeId:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        guestName:
+          type: string
+        guestEmail:
+          type: string
+    CreateBooking:
+      type: object
+      required:
+        - eventTypeId
+        - start
+        - guestName
+        - guestEmail
+      properties:
+        eventTypeId:
+          type: string
+          minLength: 1
+          maxLength: 64
+        start:
+          type: string
+          format: date-time
+          description: Must be the start of an offered Slot of that Event type.
+        guestName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        guestEmail:
+          type: string
+          minLength: 1
+          maxLength: 254
+          pattern: ^[^@]+@[^@]+$
+          description: One `@` with text on both sides.
     CreateEventType:
       type: object
       required:
@@ -107,3 +213,22 @@ components:
             - conflict
         message:
           type: string
+    Slot:
+      type: object
+      required:
+        - start
+        - end
+        - status
+      properties:
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - free
+            - busy
+      description: A start offered for one Event type. A busy Slot carries no Guest identity.

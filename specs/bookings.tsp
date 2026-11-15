@@ -1,0 +1,53 @@
+import "@typespec/http";
+import "@typespec/openapi";
+import "./event-types.tsp";
+
+using TypeSpec.Http;
+using TypeSpec.OpenAPI;
+
+namespace EasyBook;
+
+model CreateBooking {
+  @minLength(1)
+  @maxLength(64)
+  eventTypeId: string;
+
+  /** Must be the start of an offered Slot of that Event type. */
+  start: utcDateTime;
+
+  @minLength(1)
+  @maxLength(120)
+  guestName: string;
+
+  /** One `@` with text on both sides. */
+  @minLength(1)
+  @maxLength(254)
+  @pattern("^[^@]+@[^@]+$")
+  guestEmail: string;
+}
+
+model Booking {
+  eventTypeId: string;
+  start: utcDateTime;
+  end: utcDateTime;
+  guestName: string;
+  guestEmail: string;
+}
+
+model BookingCreated {
+  @statusCode statusCode: 201;
+  @body body: Booking;
+}
+
+model Conflict {
+  @statusCode statusCode: 409;
+  @body body: Failure;
+}
+
+@route("/bookings")
+@tag("Bookings")
+interface Bookings {
+  @post
+  @operationId("createBooking")
+  createBooking(@body body: CreateBooking): BookingCreated | DataError | Conflict;
+}

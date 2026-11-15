@@ -8,7 +8,8 @@
     "build": "tsc -p tsconfig.build.json && cp ../../openapi/openapi.yaml dist/openapi.yaml",
     "start": "node dist/index.js",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "probe": "tsx src/booking-rule-probe.ts"
   },
   "dependencies": {
     "fastify": "^5.12.8",

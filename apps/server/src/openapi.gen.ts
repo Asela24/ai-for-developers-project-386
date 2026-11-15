@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/event-types": {
         parameters: {
             query?: never;
@@ -20,10 +36,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/event-types/{eventTypeId}/slots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listSlots"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        Booking: {
+            eventTypeId: string;
+            /** Format: date-time */
+            start: string;
+            /** Format: date-time */
+            end: string;
+            guestName: string;
+            guestEmail: string;
+        };
+        CreateBooking: {
+            eventTypeId: string;
+            /**
+             * Format: date-time
+             * @description Must be the start of an offered Slot of that Event type.
+             */
+            start: string;
+            guestName: string;
+            /** @description One `@` with text on both sides. */
+            guestEmail: string;
+        };
         CreateEventType: {
             id: string;
             name: string;
@@ -43,6 +95,15 @@ export interface components {
             code: "data_error" | "conflict";
             message: string;
         };
+        /** @description A start offered for one Event type. A busy Slot carries no Guest identity. */
+        Slot: {
+            /** Format: date-time */
+            start: string;
+            /** Format: date-time */
+            end: string;
+            /** @enum {string} */
+            status: "free" | "busy";
+        };
     };
     responses: never;
     parameters: never;
@@ -52,6 +113,48 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    createBooking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBooking"];
+            };
+        };
+        responses: {
+            /** @description The request has succeeded and a new resource has been created as a result. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Booking"];
+                };
+            };
+            /** @description The server could not understand the request due to invalid syntax. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Failure"];
+                };
+            };
+            /** @description The request conflicts with the current state of the server. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Failure"];
+                };
+            };
+        };
+    };
     listEventTypes: {
         parameters: {
             query?: never;
@@ -92,6 +195,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EventType"];
+                };
+            };
+            /** @description The server could not understand the request due to invalid syntax. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Failure"];
+                };
+            };
+        };
+    };
+    listSlots: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                eventTypeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The request has succeeded. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Slot"][];
                 };
             };
             /** @description The server could not understand the request due to invalid syntax. */

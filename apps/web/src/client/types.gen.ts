@@ -4,6 +4,27 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+export type Booking = {
+    eventTypeId: string;
+    start: string;
+    end: string;
+    guestName: string;
+    guestEmail: string;
+};
+
+export type CreateBooking = {
+    eventTypeId: string;
+    /**
+     * Must be the start of an offered Slot of that Event type.
+     */
+    start: string;
+    guestName: string;
+    /**
+     * One `@` with text on both sides.
+     */
+    guestEmail: string;
+};
+
 export type CreateEventType = {
     id: string;
     name: string;
@@ -22,6 +43,44 @@ export type Failure = {
     code: 'data_error' | 'conflict';
     message: string;
 };
+
+/**
+ * A start offered for one Event type. A busy Slot carries no Guest identity.
+ */
+export type Slot = {
+    start: string;
+    end: string;
+    status: 'free' | 'busy';
+};
+
+export type CreateBookingData = {
+    body: CreateBooking;
+    path?: never;
+    query?: never;
+    url: '/bookings';
+};
+
+export type CreateBookingErrors = {
+    /**
+     * The server could not understand the request due to invalid syntax.
+     */
+    400: Failure;
+    /**
+     * The request conflicts with the current state of the server.
+     */
+    409: Failure;
+};
+
+export type CreateBookingError = CreateBookingErrors[keyof CreateBookingErrors];
+
+export type CreateBookingResponses = {
+    /**
+     * The request has succeeded and a new resource has been created as a result.
+     */
+    201: Booking;
+};
+
+export type CreateBookingResponse = CreateBookingResponses[keyof CreateBookingResponses];
 
 export type ListEventTypesData = {
     body?: never;
@@ -63,3 +122,30 @@ export type CreateEventTypeResponses = {
 };
 
 export type CreateEventTypeResponse = CreateEventTypeResponses[keyof CreateEventTypeResponses];
+
+export type ListSlotsData = {
+    body?: never;
+    path: {
+        eventTypeId: string;
+    };
+    query?: never;
+    url: '/event-types/{eventTypeId}/slots';
+};
+
+export type ListSlotsErrors = {
+    /**
+     * The server could not understand the request due to invalid syntax.
+     */
+    400: Failure;
+};
+
+export type ListSlotsError = ListSlotsErrors[keyof ListSlotsErrors];
+
+export type ListSlotsResponses = {
+    /**
+     * The request has succeeded.
+     */
+    200: Array<Slot>;
+};
+
+export type ListSlotsResponse = ListSlotsResponses[keyof ListSlotsResponses];
