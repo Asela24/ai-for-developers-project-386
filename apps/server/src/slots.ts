@@ -17,7 +17,8 @@ const wallClock = new Intl.DateTimeFormat("en-US", {
   hourCycle: "h23",
 });
 
-const partsAt = (instant: number) => {
+// Year, month, day, hour and minute that Belgrade's wall clock shows at this instant.
+const belgradeWallClockAt = (instant: number) => {
   const parts = Object.fromEntries(
     wallClock.formatToParts(instant).map((part) => [part.type, Number(part.value)]),
   );
@@ -30,22 +31,25 @@ const partsAt = (instant: number) => {
   };
 };
 
-const offsetAt = (instant: number): number => {
-  const p = partsAt(instant);
-  const asUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute);
+// How far Belgrade's wall clock runs ahead of UTC at this instant, in milliseconds.
+const belgradeOffsetMsAt = (instant: number): number => {
+  const wall = belgradeWallClockAt(instant);
+  const asUtc = Date.UTC(wall.year, wall.month - 1, wall.day, wall.hour, wall.minute);
   return asUtc - Math.floor(instant / minuteMs) * minuteMs;
 };
 
 // The instant at which Belgrade's wall clock shows this date and minute of day.
 const belgradeInstant = (year: number, month: number, day: number, minuteOfDay: number) => {
   const naive = Date.UTC(year, month - 1, day, 0, minuteOfDay);
-  const first = naive - offsetAt(naive);
-  return naive - offsetAt(first);
+  // Guess with the offset at the naive instant, then correct with the offset at the guess,
+  // which differs only when a DST switch lies between the two.
+  const firstGuess = naive - belgradeOffsetMsAt(naive);
+  return naive - belgradeOffsetMsAt(firstGuess);
 };
 
 /** Every Slot offered for a duration at `now`: 14 Belgrade days from today, 09:00–18:00, packed, none past. */
 export const offeredSlots = (durationMinutes: number, now: Date): Interval[] => {
-  const today = partsAt(now.getTime());
+  const today = belgradeWallClockAt(now.getTime());
   const slots: Interval[] = [];
   for (let dayOffset = 0; dayOffset < windowDays; dayOffset += 1) {
     const date = new Date(Date.UTC(today.year, today.month - 1, today.day + dayOffset));

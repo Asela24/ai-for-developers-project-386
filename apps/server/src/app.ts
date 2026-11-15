@@ -32,6 +32,11 @@ const conflict = {
   message: "Это время уже занято. Выберите другое.",
 } satisfies Failure;
 
+/** A request the specification answers with data_error; the error handler sends it as 400. */
+class DataError extends Error {
+  readonly statusCode = 400;
+}
+
 // Source, compiled output inside the repo, or the copy next to dist/ in the image.
 const openApiCandidates = [
   "../../../openapi/openapi.yaml",
@@ -93,6 +98,13 @@ export const buildApp = ({ now = () => new Date() }: BuildAppOptions = {}) => {
     return reply.send(error);
   });
 
+  // An unknown Event type id is the specification's data error, wherever it is given.
+  const knownEventType = (eventTypeId: string): EventType => {
+    const eventType = eventTypes.find((candidate) => candidate.id === eventTypeId);
+    if (!eventType) throw new DataError(`Unknown Event type "${eventTypeId}"`);
+    return eventType;
+  };
+
   app.register(openapiGlue, {
     specification: openApiSpecPath(),
     serviceHandlers: {
@@ -115,37 +127,27 @@ export const buildApp = ({ now = () => new Date() }: BuildAppOptions = {}) => {
       },
       deleteEventType: (request: FastifyRequest, reply: FastifyReply) => {
         const { eventTypeId } = request.params as DeleteEventTypePath;
-        const index = eventTypes.findIndex((candidate) => candidate.id === eventTypeId);
-        if (index === -1) {
-          reply.code(400);
-          return dataError;
-        }
-        eventTypes.splice(index, 1);
+        eventTypes.splice(eventTypes.indexOf(knownEventType(eventTypeId)), 1);
         bookings.removeByEventType(eventTypeId);
         return reply.code(204).send();
       },
-      listSlots: (request: FastifyRequest, reply: FastifyReply) => {
+      listSlots: (request: FastifyRequest) => {
         const { eventTypeId } = request.params as SlotsPath;
-        const eventType = eventTypes.find((candidate) => candidate.id === eventTypeId);
-        if (!eventType) {
-          reply.code(400);
-          return dataError;
-        }
-        return offeredSlots(eventType.durationMinutes, now()).map((slot): Slot => ({
-          start: slot.start.toISOString(),
-          end: slot.end.toISOString(),
-          status: bookings.isBusy(slot) ? "busy" : "free",
-        }));
+        return offeredSlots(knownEventType(eventTypeId).durationMinutes, now()).map(
+          (slot): Slot => ({
+            start: slot.start.toISOString(),
+            end: slot.end.toISOString(),
+            status: bookings.isBusy(slot) ? "busy" : "free",
+          }),
+        );
       },
       createBooking: (request: FastifyRequest, reply: FastifyReply) => {
         const body = request.body as CreateBooking;
-        const eventType = eventTypes.find((candidate) => candidate.id === body.eventTypeId);
+        const { durationMinutes } = knownEventType(body.eventTypeId);
         const requested = new Date(body.start).getTime();
-        const slot =
-          eventType &&
-          offeredSlots(eventType.durationMinutes, now()).find(
-            (offered) => offered.start.getTime() === requested,
-          );
+        const slot = offeredSlots(durationMinutes, now()).find(
+          (offered) => offered.start.getTime() === requested,
+        );
         if (!slot) {
           reply.code(400);
           return dataError;
