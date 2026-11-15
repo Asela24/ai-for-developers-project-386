@@ -5,6 +5,10 @@ export type ClientOptions = {
 };
 
 export type Booking = {
+    /**
+     * Stable identifier of this Booking, assigned on create.
+     */
+    id: string;
     eventTypeId: string;
     start: string;
     end: string;
@@ -52,6 +56,22 @@ export type Slot = {
     end: string;
     status: 'free' | 'busy';
 };
+
+export type ListUpcomingBookingsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/bookings';
+};
+
+export type ListUpcomingBookingsResponses = {
+    /**
+     * The request has succeeded.
+     */
+    200: Array<Booking>;
+};
+
+export type ListUpcomingBookingsResponse = ListUpcomingBookingsResponses[keyof ListUpcomingBookingsResponses];
 
 export type CreateBookingData = {
     body: CreateBooking;

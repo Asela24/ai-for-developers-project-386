@@ -27,6 +27,9 @@ model CreateBooking {
 }
 
 model Booking {
+  /** Stable identifier of this Booking, assigned on create. */
+  id: string;
+
   eventTypeId: string;
   start: utcDateTime;
   end: utcDateTime;
@@ -50,4 +53,9 @@ interface Bookings {
   @post
   @operationId("createBooking")
   createBooking(@body body: CreateBooking): BookingCreated | DataError | Conflict;
+
+  /** Upcoming Bookings of every Event type, by start: the interval has not ended yet. */
+  @get
+  @operationId("listUpcomingBookings")
+  listUpcomingBookings(): Booking[];
 }

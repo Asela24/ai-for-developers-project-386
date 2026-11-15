@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import openapiGlue from "fastify-openapi-glue";
 import type { components, operations } from "./openapi.gen.js";
-import { createBookingStore } from "./booking-store.js";
+import { createBookingStore, type StoredBooking } from "./booking-store.js";
 import { offeredSlots } from "./slots.js";
 
 export type BuildAppOptions = {
@@ -49,6 +49,15 @@ const openApiSpecPath = (): string => {
   }
   return found;
 };
+
+const toBooking = (stored: StoredBooking): Booking => ({
+  id: stored.id,
+  eventTypeId: stored.eventTypeId,
+  start: stored.start.toISOString(),
+  end: stored.end.toISOString(),
+  guestName: stored.guestName,
+  guestEmail: stored.guestEmail,
+});
 
 // Tests pass a fixed `now`; the server uses the real clock.
 export const buildApp = ({ now = () => new Date() }: BuildAppOptions = {}) => {
@@ -123,14 +132,9 @@ export const buildApp = ({ now = () => new Date() }: BuildAppOptions = {}) => {
           return conflict;
         }
         reply.code(201);
-        return {
-          eventTypeId: reserved.eventTypeId,
-          start: reserved.start.toISOString(),
-          end: reserved.end.toISOString(),
-          guestName: reserved.guestName,
-          guestEmail: reserved.guestEmail,
-        } satisfies Booking;
+        return toBooking(reserved);
       },
+      listUpcomingBookings: () => bookings.upcoming(now()).map(toBooking),
     },
   });
 

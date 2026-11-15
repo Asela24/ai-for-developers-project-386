@@ -168,8 +168,10 @@ it("Guest books a free Slot and gets the Booking back", async () => {
     "eventTypeId",
     "guestEmail",
     "guestName",
+    "id",
     "start",
   ]);
+  expect(body.id).toEqual(expect.stringMatching(/.+/));
   expect(body.eventTypeId).toBe("hour");
   expect(new Date(body.start ?? "").toISOString()).toBe(ten);
   expect(new Date(body.end ?? "").toISOString()).toBe("2026-11-16T10:00:00.000Z");

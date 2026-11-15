@@ -38,6 +38,21 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateBooking'
+    get:
+      operationId: listUpcomingBookings
+      description: 'Upcoming Bookings of every Event type, by start: the interval has not ended yet.'
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+      tags:
+        - Bookings
   /event-types:
     get:
       operationId: listEventTypes
@@ -108,12 +123,16 @@ components:
     Booking:
       type: object
       required:
+        - id
         - eventTypeId
         - start
         - end
         - guestName
         - guestEmail
       properties:
+        id:
+          type: string
+          description: Stable identifier of this Booking, assigned on create.
         eventTypeId:
           type: string
         start:
