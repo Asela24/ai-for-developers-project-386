@@ -53,6 +53,27 @@ paths:
                   $ref: '#/components/schemas/Booking'
       tags:
         - Bookings
+  /bookings/{id}:
+    delete:
+      operationId: deleteBooking
+      description: 'Owner deletes a Booking: its interval is free at once for every Event type. An unknown id is a data error.'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Failure'
+      tags:
+        - Bookings
   /event-types:
     get:
       operationId: listEventTypes

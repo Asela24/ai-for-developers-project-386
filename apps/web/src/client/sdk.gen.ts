@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateBookingData, CreateBookingErrors, CreateBookingResponses, CreateEventTypeData, CreateEventTypeErrors, CreateEventTypeResponses, DeleteEventTypeData, DeleteEventTypeErrors, DeleteEventTypeResponses, ListEventTypesData, ListEventTypesResponses, ListSlotsData, ListSlotsErrors, ListSlotsResponses, ListUpcomingBookingsData, ListUpcomingBookingsResponses } from './types.gen';
+import type { CreateBookingData, CreateBookingErrors, CreateBookingResponses, CreateEventTypeData, CreateEventTypeErrors, CreateEventTypeResponses, DeleteBookingData, DeleteBookingErrors, DeleteBookingResponses, DeleteEventTypeData, DeleteEventTypeErrors, DeleteEventTypeResponses, ListEventTypesData, ListEventTypesResponses, ListSlotsData, ListSlotsErrors, ListSlotsResponses, ListUpcomingBookingsData, ListUpcomingBookingsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -31,6 +31,11 @@ export const createBooking = <ThrowOnError extends boolean = false>(options: Opt
         ...options.headers
     }
 });
+
+/**
+ * Owner deletes a Booking: its interval is free at once for every Event type. An unknown id is a data error.
+ */
+export const deleteBooking = <ThrowOnError extends boolean = false>(options: Options<DeleteBookingData, ThrowOnError>): RequestResult<DeleteBookingResponses, DeleteBookingErrors, ThrowOnError> => (options.client ?? client).delete<DeleteBookingResponses, DeleteBookingErrors, ThrowOnError>({ url: '/bookings/{id}', ...options });
 
 export const listEventTypes = <ThrowOnError extends boolean = false>(options?: Options<ListEventTypesData, ThrowOnError>): RequestResult<ListEventTypesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListEventTypesResponses, unknown, ThrowOnError>({ url: '/event-types', ...options });
 

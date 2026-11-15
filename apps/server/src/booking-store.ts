@@ -38,6 +38,13 @@ export const createBookingStore = () => {
       const kept = bookings.filter((booking) => booking.eventTypeId !== eventTypeId);
       bookings.splice(0, bookings.length, ...kept);
     },
+    /** Deletes the Booking with this id; `false` when there is none. Its interval is free at once. */
+    remove(id: string): boolean {
+      const index = bookings.findIndex((booking) => booking.id === id);
+      if (index === -1) return false;
+      bookings.splice(index, 1);
+      return true;
+    },
     isBusy(interval: Interval): boolean {
       return bookings.some((existing) => overlaps(existing, interval));
     },

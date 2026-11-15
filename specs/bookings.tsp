@@ -59,3 +59,16 @@ interface Bookings {
   @operationId("listUpcomingBookings")
   listUpcomingBookings(): Booking[];
 }
+
+model BookingDeleted {
+  @statusCode statusCode: 204;
+}
+
+@route("/bookings/{id}")
+@tag("Bookings")
+interface BookingById {
+  /** Owner deletes a Booking: its interval is free at once for every Event type. An unknown id is a data error. */
+  @delete
+  @operationId("deleteBooking")
+  deleteBooking(@path id: string): BookingDeleted | DataError;
+}

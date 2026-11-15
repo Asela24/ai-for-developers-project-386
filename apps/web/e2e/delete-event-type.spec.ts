@@ -29,7 +29,7 @@ test("an Event type the Owner deleted with its Bookings is gone from the Guest p
   // Stays, so the reloaded page shows it has loaded the list.
   await createEventType("kept-type", "Ретроспектива", "Итоги прошедшего спринта", 75);
 
-  // Book a Slot in the middle of the window; other scenarios take the first and last ones.
+  // Book a Slot a quarter into the window; other scenarios take the first, middle and last ones.
   const slots = (await (await fetch(`${api}/event-types/retired-type/slots`)).json()) as Array<{
     start: string;
     status: string;
@@ -40,9 +40,9 @@ test("an Event type the Owner deleted with its Bookings is gone from the Guest p
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
       eventTypeId: "retired-type",
-      start: free[Math.floor(free.length / 2)]?.start,
-      guestName: "Вера",
-      guestEmail: "vera@example.com",
+      start: free[Math.floor(free.length / 4)]?.start,
+      guestName: "Глеб",
+      guestEmail: "gleb@example.com",
     }),
   });
   expect(booked.status).toBe(201);
