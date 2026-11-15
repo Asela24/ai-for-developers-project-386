@@ -33,6 +33,11 @@ export const createBookingStore = () => {
         .filter((booking) => booking.end > now)
         .toSorted((a, b) => a.start.getTime() - b.start.getTime());
     },
+    /** Removes every Booking of the Event type, ended ones included, freeing their intervals. */
+    removeByEventType(eventTypeId: string): void {
+      const kept = bookings.filter((booking) => booking.eventTypeId !== eventTypeId);
+      bookings.splice(0, bookings.length, ...kept);
+    },
     isBusy(interval: Interval): boolean {
       return bookings.some((existing) => overlaps(existing, interval));
     },

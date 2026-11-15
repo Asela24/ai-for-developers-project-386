@@ -92,6 +92,27 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateEventType'
+  /event-types/{eventTypeId}:
+    delete:
+      operationId: deleteEventType
+      description: Deletes the Event type and every Booking of it, ended ones included.
+      parameters:
+        - name: eventTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: There is no content to send for this request, but the headers may be useful.
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Failure'
+      tags:
+        - Event types
   /event-types/{eventTypeId}/slots:
     get:
       operationId: listSlots

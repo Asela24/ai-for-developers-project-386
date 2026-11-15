@@ -65,4 +65,10 @@ interface EventTypes {
   @post
   @operationId("createEventType")
   createEventType(@body body: CreateEventType): EventTypeCreated | DataError;
+
+  /** Deletes the Event type and every Booking of it, ended ones included. */
+  @delete
+  @route("/{eventTypeId}")
+  @operationId("deleteEventType")
+  deleteEventType(@path eventTypeId: string): NoContentResponse | DataError;
 }

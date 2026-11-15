@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateBookingData, CreateBookingErrors, CreateBookingResponses, CreateEventTypeData, CreateEventTypeErrors, CreateEventTypeResponses, ListEventTypesData, ListEventTypesResponses, ListSlotsData, ListSlotsErrors, ListSlotsResponses, ListUpcomingBookingsData, ListUpcomingBookingsResponses } from './types.gen';
+import type { CreateBookingData, CreateBookingErrors, CreateBookingResponses, CreateEventTypeData, CreateEventTypeErrors, CreateEventTypeResponses, DeleteEventTypeData, DeleteEventTypeErrors, DeleteEventTypeResponses, ListEventTypesData, ListEventTypesResponses, ListSlotsData, ListSlotsErrors, ListSlotsResponses, ListUpcomingBookingsData, ListUpcomingBookingsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -42,5 +42,10 @@ export const createEventType = <ThrowOnError extends boolean = false>(options: O
         ...options.headers
     }
 });
+
+/**
+ * Deletes the Event type and every Booking of it, ended ones included.
+ */
+export const deleteEventType = <ThrowOnError extends boolean = false>(options: Options<DeleteEventTypeData, ThrowOnError>): RequestResult<DeleteEventTypeResponses, DeleteEventTypeErrors, ThrowOnError> => (options.client ?? client).delete<DeleteEventTypeResponses, DeleteEventTypeErrors, ThrowOnError>({ url: '/event-types/{eventTypeId}', ...options });
 
 export const listSlots = <ThrowOnError extends boolean = false>(options: Options<ListSlotsData, ThrowOnError>): RequestResult<ListSlotsResponses, ListSlotsErrors, ThrowOnError> => (options.client ?? client).get<ListSlotsResponses, ListSlotsErrors, ThrowOnError>({ url: '/event-types/{eventTypeId}/slots', ...options });

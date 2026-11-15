@@ -143,6 +143,33 @@ export type CreateEventTypeResponses = {
 
 export type CreateEventTypeResponse = CreateEventTypeResponses[keyof CreateEventTypeResponses];
 
+export type DeleteEventTypeData = {
+    body?: never;
+    path: {
+        eventTypeId: string;
+    };
+    query?: never;
+    url: '/event-types/{eventTypeId}';
+};
+
+export type DeleteEventTypeErrors = {
+    /**
+     * The server could not understand the request due to invalid syntax.
+     */
+    400: Failure;
+};
+
+export type DeleteEventTypeError = DeleteEventTypeErrors[keyof DeleteEventTypeErrors];
+
+export type DeleteEventTypeResponses = {
+    /**
+     * There is no content to send for this request, but the headers may be useful.
+     */
+    204: void;
+};
+
+export type DeleteEventTypeResponse = DeleteEventTypeResponses[keyof DeleteEventTypeResponses];
+
 export type ListSlotsData = {
     body?: never;
     path: {

@@ -16,6 +16,7 @@ type CreateEventType = components["schemas"]["CreateEventType"];
 type Failure = components["schemas"]["Failure"];
 type Slot = components["schemas"]["Slot"];
 type SlotsPath = operations["listSlots"]["parameters"]["path"];
+type DeleteEventTypePath = operations["deleteEventType"]["parameters"]["path"];
 type CreateBooking = components["schemas"]["CreateBooking"];
 type Booking = components["schemas"]["Booking"];
 
@@ -94,6 +95,17 @@ export const buildApp = ({ now = () => new Date() }: BuildAppOptions = {}) => {
         eventTypes.push(eventType);
         reply.code(201);
         return eventType;
+      },
+      deleteEventType: (request: FastifyRequest, reply: FastifyReply) => {
+        const { eventTypeId } = request.params as DeleteEventTypePath;
+        const index = eventTypes.findIndex((candidate) => candidate.id === eventTypeId);
+        if (index === -1) {
+          reply.code(400);
+          return dataError;
+        }
+        eventTypes.splice(index, 1);
+        bookings.removeByEventType(eventTypeId);
+        return reply.code(204).send();
       },
       listSlots: (request: FastifyRequest, reply: FastifyReply) => {
         const { eventTypeId } = request.params as SlotsPath;
