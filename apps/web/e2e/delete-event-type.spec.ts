@@ -47,7 +47,7 @@ test("an Event type the Owner deleted with its Bookings is gone from the Guest p
   });
   expect(booked.status).toBe(201);
 
-  await page.goto("/");
+  await page.goto("/event-types");
   await expect(page.getByRole("link", { name: "Стратегическая сессия" })).toBeVisible();
 
   const deleted = await fetch(`${api}/event-types/retired-type`, { method: "DELETE" });

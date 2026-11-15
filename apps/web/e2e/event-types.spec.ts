@@ -16,9 +16,15 @@ test("Guest sees each Event type name, description, and duration, but not the id
   });
   expect(created.status).toBe(201);
 
-  await page.goto("/");
-  await expect(page.getByText("Знакомство")).toBeVisible();
+  await page.goto("/event-types");
+  const card = page.getByRole("link", { name: "Знакомство", exact: true });
+  await expect(card).toBeVisible();
   await expect(page.getByText("Первый разговор о задаче")).toBeVisible();
-  await expect(page.getByText("30 минут")).toBeVisible();
+  await expect(card).toContainText("30 мин");
+  await expect(page.getByText("secret-id-not-shown")).toHaveCount(0);
+
+  await card.click();
+  await expect(page.getByRole("heading", { name: "Знакомство", level: 1 })).toBeVisible();
+  await expect(page.getByText("Первый разговор о задаче")).toBeVisible();
   await expect(page.getByText("secret-id-not-shown")).toHaveCount(0);
 });
