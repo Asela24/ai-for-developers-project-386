@@ -1,9 +1,9 @@
-# Календарь звонков
+# EasyBook
 
 
 [![hexlet-check](https://github.com/Asela24/ai-for-developers-project-386/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Asela24/ai-for-developers-project-386/actions)
 
-Разработайте совместно с ИИ сервис для бронирования календаря
+Разработайте совместно с ИИ сервис для бронирования звонков
 
 Учебный проект Хекслета: https://ru.hexlet.io/programs/ai-for-developers
 Как это должно работать: https://files.hexlet.app/a/2ipc5m
@@ -23,16 +23,20 @@
 
 ## Установка
 
-<!-- Опишите установку: клонирование, зависимости, переменные окружения -->
-
 ```bash
 git clone https://github.com/Asela24/ai-for-developers-project-386.git
 cd ai-for-developers-project-386
+mise install
+pnpm install
 ```
 
 ## Использование
 
-<!-- Добавьте примеры запуска и запись asciinema — именно это смотрит работодатель -->
+```bash
+mise run dev
+```
+
+Приложение: http://localhost:5173. API проксируется под `/api`.
 
 ---
 
