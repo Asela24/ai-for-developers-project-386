@@ -40,7 +40,7 @@ paths:
               $ref: '#/components/schemas/CreateBooking'
     get:
       operationId: listUpcomingBookings
-      description: 'Upcoming Bookings of every Event type, by start: the interval has not ended yet.'
+      description: 'Upcoming Bookings of every Event type: the interval has not ended yet.'
       parameters: []
       responses:
         '200':
@@ -50,7 +50,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Booking'
+                  $ref: '#/components/schemas/OwnerBooking'
       tags:
         - Bookings
   /bookings/{id}:
@@ -165,16 +165,12 @@ components:
     Booking:
       type: object
       required:
-        - id
         - eventTypeId
         - start
         - end
         - guestName
         - guestEmail
       properties:
-        id:
-          type: string
-          description: Stable identifier of this Booking, assigned on create.
         eventTypeId:
           type: string
         start:
@@ -187,6 +183,7 @@ components:
           type: string
         guestEmail:
           type: string
+      description: 'What the Guest gets back on create: no id, so nothing to delete the Booking with.'
     CreateBooking:
       type: object
       required:
@@ -274,6 +271,32 @@ components:
             - conflict
         message:
           type: string
+    OwnerBooking:
+      type: object
+      required:
+        - id
+        - eventTypeId
+        - start
+        - end
+        - guestName
+        - guestEmail
+      properties:
+        id:
+          type: string
+          description: Stable identifier of this Booking, assigned on create.
+        eventTypeId:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        guestName:
+          type: string
+        guestEmail:
+          type: string
+      description: A Booking as the Owner reads it, with the id that deletes it.
     Slot:
       type: object
       required:

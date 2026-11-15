@@ -26,7 +26,10 @@ const ownerApp = async () => {
   }
   const created = await app.inject({ method: "POST", url: "/bookings", payload: anya });
   expect(created.statusCode).toBe(201);
-  return { app, id: (created.json() as { id: string }).id };
+  // The create response carries no id: the Owner takes it from the Owner list.
+  const listed = await app.inject({ method: "GET", url: "/bookings" });
+  const [booking] = listed.json() as Array<{ id: string }>;
+  return { app, id: booking?.id ?? "" };
 };
 
 const statusAt = async (app: Injector, eventTypeId: string, start: string) => {

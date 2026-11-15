@@ -26,15 +26,21 @@ model CreateBooking {
   guestEmail: string;
 }
 
+/** What the Guest gets back on create: no id, so nothing to delete the Booking with. */
 model Booking {
-  /** Stable identifier of this Booking, assigned on create. */
-  id: string;
-
   eventTypeId: string;
   start: utcDateTime;
   end: utcDateTime;
   guestName: string;
   guestEmail: string;
+}
+
+/** A Booking as the Owner reads it, with the id that deletes it. */
+model OwnerBooking {
+  /** Stable identifier of this Booking, assigned on create. */
+  id: string;
+
+  ...Booking;
 }
 
 model BookingCreated {
@@ -54,10 +60,10 @@ interface Bookings {
   @operationId("createBooking")
   createBooking(@body body: CreateBooking): BookingCreated | DataError | Conflict;
 
-  /** Upcoming Bookings of every Event type, by start: the interval has not ended yet. */
+  /** Upcoming Bookings of every Event type: the interval has not ended yet. */
   @get
   @operationId("listUpcomingBookings")
-  listUpcomingBookings(): Booking[];
+  listUpcomingBookings(): OwnerBooking[];
 }
 
 model BookingDeleted {

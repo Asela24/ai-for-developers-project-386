@@ -36,7 +36,12 @@ test("after the Owner deletes a Booking its Slot shows as free again", async ({ 
     }),
   });
   expect(booked.status).toBe(201);
-  const { id } = (await booked.json()) as { id: string };
+  // The Guest gets no id back; the Owner finds the Booking in the Owner list.
+  const listed = (await (await fetch(`${api}/bookings`)).json()) as Array<{
+    id: string;
+    eventTypeId: string;
+  }>;
+  const id = listed.find((booking) => booking.eventTypeId === "consultation")?.id ?? "";
 
   const when = new Date(start);
   const dayName = new Intl.DateTimeFormat("ru-RU", {

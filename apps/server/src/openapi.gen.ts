@@ -11,7 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Upcoming Bookings of every Event type, by start: the interval has not ended yet. */
+        /** @description Upcoming Bookings of every Event type: the interval has not ended yet. */
         get: operations["listUpcomingBookings"];
         put?: never;
         post: operations["createBooking"];
@@ -91,9 +91,8 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description What the Guest gets back on create: no id, so nothing to delete the Booking with. */
         Booking: {
-            /** @description Stable identifier of this Booking, assigned on create. */
-            id: string;
             eventTypeId: string;
             /** Format: date-time */
             start: string;
@@ -132,6 +131,18 @@ export interface components {
             code: "data_error" | "conflict";
             message: string;
         };
+        /** @description A Booking as the Owner reads it, with the id that deletes it. */
+        OwnerBooking: {
+            /** @description Stable identifier of this Booking, assigned on create. */
+            id: string;
+            eventTypeId: string;
+            /** Format: date-time */
+            start: string;
+            /** Format: date-time */
+            end: string;
+            guestName: string;
+            guestEmail: string;
+        };
         /** @description A start offered for one Event type. A busy Slot carries no Guest identity. */
         Slot: {
             /** Format: date-time */
@@ -165,7 +176,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Booking"][];
+                    "application/json": components["schemas"]["OwnerBooking"][];
                 };
             };
         };

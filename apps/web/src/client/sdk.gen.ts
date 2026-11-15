@@ -19,7 +19,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 };
 
 /**
- * Upcoming Bookings of every Event type, by start: the interval has not ended yet.
+ * Upcoming Bookings of every Event type: the interval has not ended yet.
  */
 export const listUpcomingBookings = <ThrowOnError extends boolean = false>(options?: Options<ListUpcomingBookingsData, ThrowOnError>): RequestResult<ListUpcomingBookingsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListUpcomingBookingsResponses, unknown, ThrowOnError>({ url: '/bookings', ...options });
 

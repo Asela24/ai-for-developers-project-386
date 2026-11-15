@@ -19,6 +19,7 @@ type SlotsPath = operations["listSlots"]["parameters"]["path"];
 type DeleteEventTypePath = operations["deleteEventType"]["parameters"]["path"];
 type CreateBooking = components["schemas"]["CreateBooking"];
 type Booking = components["schemas"]["Booking"];
+type OwnerBooking = components["schemas"]["OwnerBooking"];
 type DeleteBookingPath = operations["deleteBooking"]["parameters"]["path"];
 
 const dataError = {
@@ -58,13 +59,18 @@ const openApiSpecPath = (): string => {
   return found;
 };
 
+// The Guest's copy has no id: the id is what deletes a Booking, and only the Owner deletes.
 const toBooking = (stored: StoredBooking): Booking => ({
-  id: stored.id,
   eventTypeId: stored.eventTypeId,
   start: stored.start.toISOString(),
   end: stored.end.toISOString(),
   guestName: stored.guestName,
   guestEmail: stored.guestEmail,
+});
+
+const toOwnerBooking = (stored: StoredBooking): OwnerBooking => ({
+  id: stored.id,
+  ...toBooking(stored),
 });
 
 // Tests pass a fixed `now`; the server uses the real clock.
@@ -157,7 +163,7 @@ export const buildApp = ({ now = () => new Date() }: BuildAppOptions = {}) => {
         reply.code(201);
         return toBooking(reserved);
       },
-      listUpcomingBookings: () => bookings.upcoming(now()).map(toBooking),
+      listUpcomingBookings: () => bookings.upcoming(now()).map(toOwnerBooking),
       deleteBooking: (request: FastifyRequest, reply: FastifyReply) => {
         const { id } = request.params as DeleteBookingPath;
         if (!bookings.remove(id)) {

@@ -4,11 +4,10 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+/**
+ * What the Guest gets back on create: no id, so nothing to delete the Booking with.
+ */
 export type Booking = {
-    /**
-     * Stable identifier of this Booking, assigned on create.
-     */
-    id: string;
     eventTypeId: string;
     start: string;
     end: string;
@@ -49,6 +48,21 @@ export type Failure = {
 };
 
 /**
+ * A Booking as the Owner reads it, with the id that deletes it.
+ */
+export type OwnerBooking = {
+    /**
+     * Stable identifier of this Booking, assigned on create.
+     */
+    id: string;
+    eventTypeId: string;
+    start: string;
+    end: string;
+    guestName: string;
+    guestEmail: string;
+};
+
+/**
  * A start offered for one Event type. A busy Slot carries no Guest identity.
  */
 export type Slot = {
@@ -68,7 +82,7 @@ export type ListUpcomingBookingsResponses = {
     /**
      * The request has succeeded.
      */
-    200: Array<Booking>;
+    200: Array<OwnerBooking>;
 };
 
 export type ListUpcomingBookingsResponse = ListUpcomingBookingsResponses[keyof ListUpcomingBookingsResponses];
