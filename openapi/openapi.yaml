@@ -1,0 +1,109 @@
+openapi: 3.0.0
+info:
+  title: EasyBook
+  version: 0.0.0
+tags:
+  - name: Event types
+paths:
+  /event-types:
+    get:
+      operationId: listEventTypes
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventType'
+      tags:
+        - Event types
+    post:
+      operationId: createEventType
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Failure'
+      tags:
+        - Event types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventType'
+components:
+  schemas:
+    CreateEventType:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - durationMinutes
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 2000
+        durationMinutes:
+          type: integer
+          format: int32
+          minimum: 15
+          maximum: 540
+    EventType:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - durationMinutes
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 2000
+        durationMinutes:
+          type: integer
+          format: int32
+          minimum: 15
+          maximum: 540
+    Failure:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - data_error
+            - conflict
+        message:
+          type: string
