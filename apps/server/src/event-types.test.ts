@@ -166,3 +166,14 @@ it("lists every Event type and does not share rows across apps", async () => {
   expect(separate.statusCode).toBe(200);
   expect(separate.json()).toEqual([]);
 });
+
+it("an app built with starting Event types lists them, and the Owner can delete one", async () => {
+  const app = buildApp({ eventTypes: [intro] });
+
+  const listed = await app.inject({ method: "GET", url: "/event-types" });
+  expect(listed.json()).toEqual([intro]);
+
+  const deleted = await app.inject({ method: "DELETE", url: "/event-types/intro" });
+  expect(deleted.statusCode).toBe(204);
+  expect((await app.inject({ method: "GET", url: "/event-types" })).json()).toEqual([]);
+});
