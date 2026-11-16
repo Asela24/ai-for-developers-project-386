@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM node:26-alpine AS base
-RUN corepack enable
+# Node 25+ ships without corepack; same pnpm as mise.toml and packageManager.
+RUN npm install -g pnpm@10.34.9
 WORKDIR /app
 
 FROM base AS build
@@ -12,13 +13,10 @@ COPY . .
 RUN pnpm build \
  && pnpm --filter server deploy --prod --legacy /out/server
 
-FROM base AS server
-ENV NODE_ENV=production PORT=3000
+# One process serves the web app at / and the API under /api, on $PORT.
+FROM base
+ENV NODE_ENV=production PORT=3000 WEB_ROOT=/app/public
 COPY --from=build /out/server ./
+COPY --from=build /app/apps/web/dist ./public
 EXPOSE 3000
 CMD ["node", "dist/index.js"]
-
-FROM nginx:alpine AS web
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/apps/web/dist /usr/share/nginx/html
-EXPOSE 80
