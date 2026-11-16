@@ -4,7 +4,7 @@ import { apiPort } from "./ports";
 
 const api = `http://127.0.0.1:${apiPort}`;
 
-test("Guest selects an Event type, opens 14 days, and books a free Slot", async ({ page }) => {
+test("Guest books a free Slot and the Owner sees it in the upcoming Bookings", async ({ page }) => {
   const created = await fetch(`${api}/event-types`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -61,11 +61,28 @@ test("Guest selects an Event type, opens 14 days, and books a free Slot", async 
   await slotList(page).getByRole("button", { name: time, exact: true }).click();
   await page.getByRole("button", { name: "Продолжить" }).click();
 
-  await page.getByLabel("Имя").fill("Анна");
-  await page.getByLabel("Почта").fill("anna@example.com");
+  await page.getByLabel("Имя").fill("Лидия");
+  await page.getByLabel("Почта").fill("lidia@example.com");
   await page.getByRole("button", { name: "Забронировать" }).click();
 
-  await expect(page.getByText(`Бронирование создано: ${dayName}, ${time}`)).toBeVisible();
+  // The confirmation is a screen of its own: the calendar, Slots and form are gone.
+  const confirmation = page.getByRole("status");
+  await expect(confirmation.getByRole("heading", { name: "Бронирование создано" })).toBeVisible();
+  await expect(confirmation).toContainText(`${dayName}, ${time}`);
+  await expect(slotList(page)).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Забронировать", exact: true })).toHaveCount(0);
+  await expect(page.getByText("lidia@example.com")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Забронировать ещё" }).click();
+  await openDay(page, dayName);
   await expect(slotList(page).getByRole("button", { name: `${time} занято` })).toBeDisabled();
-  await expect(page.getByText("anna@example.com")).toHaveCount(0);
+
+  // The Owner sees the Guest’s Booking in the upcoming list.
+  await page.goto("/");
+  await page.getByRole("link", { name: "Owner" }).click();
+  const upcoming = page.getByRole("region", { name: "Предстоящие бронирования" });
+  const booking = upcoming.getByRole("listitem").filter({ hasText: "lidia@example.com" });
+  await expect(booking).toContainText("Лидия");
+  await expect(booking).toContainText("Разбор");
+  await expect(booking).toContainText(`${dayName}, ${time}`);
 });

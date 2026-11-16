@@ -1,7 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { cn } from "cn";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { createBooking, listEventTypes, listSlots, type EventType, type Slot } from "@/client";
+import {
+  createBooking,
+  listEventTypes,
+  listSlots,
+  type Booking,
+  type EventType,
+  type Slot,
+} from "@/client";
 import { Duration, OwnerBadge } from "@/components/owner-badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { monthGrid, monthsOf, slotsByDay, zone } from "@/lib/booking-days";
@@ -35,7 +42,7 @@ const weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
 // Noon UTC falls on the same date in Belgrade, so a YYYY-MM-DD key formats as that day.
 const atNoon = (key: string) => new Date(`${key}T12:00:00Z`);
-const interval = (slot: Slot) =>
+const interval = (slot: Pick<Slot, "start" | "end">) =>
   `${timeLabel.format(new Date(slot.start))} – ${timeLabel.format(new Date(slot.end))}`;
 
 const sectionHeading = "text-sm font-medium";
@@ -52,7 +59,7 @@ function EventTypeView() {
   const [step, setStep] = useState<"slot" | "guest">("slot");
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
-  const [notice, setNotice] = useState("");
+  const [booked, setBooked] = useState<Booking>();
   const [failure, setFailure] = useState("");
 
   // Bumped after each create so the view re-reads free and busy Slots.
@@ -89,7 +96,6 @@ function EventTypeView() {
   const pickDay = (key: string) => {
     setDay(key);
     setChosen(undefined);
-    setNotice("");
   };
 
   const submit = async (event: FormEvent) => {
@@ -99,8 +105,7 @@ function EventTypeView() {
       body: { eventTypeId, start: chosen.start, guestName, guestEmail },
     });
     if (result.data) {
-      const start = new Date(result.data.start);
-      setNotice(`Бронирование создано: ${dayLabel.format(start)}, ${timeLabel.format(start)}`);
+      setBooked(result.data);
       setFailure("");
       setChosen(undefined);
       setGuestName("");
@@ -112,15 +117,46 @@ function EventTypeView() {
     setSlotsVersion((version) => version + 1);
   };
 
+  if (booked) {
+    const start = new Date(booked.start);
+    return (
+      <main className="mx-auto max-w-md space-y-8 px-4 py-14 sm:px-6">
+        <div role="status" className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight">Бронирование создано</h1>
+          <p className="text-muted-foreground">{`${dayLabel.format(start)}, ${timeLabel.format(start)}`}</p>
+        </div>
+        <dl className="space-y-4 border-t pt-6 text-sm">
+          <div className="space-y-1">
+            <dt className="text-muted-foreground">Событие</dt>
+            <dd>{eventType?.name ?? ""}</dd>
+          </div>
+          <div className="space-y-1">
+            <dt className="text-muted-foreground">Дата</dt>
+            <dd>{longDayLabel.format(start)}</dd>
+          </div>
+          <div className="space-y-1">
+            <dt className="text-muted-foreground">Время</dt>
+            <dd>{interval(booked)}</dd>
+          </div>
+        </dl>
+        <div className="flex justify-end gap-2">
+          <Link
+            to="/event-types"
+            className={buttonVariants({ variant: "ghost", className: "h-9 px-4" })}
+          >
+            К типам событий
+          </Link>
+          <Button className="h-9 px-4" onClick={() => setBooked(undefined)}>
+            Забронировать ещё
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto max-w-5xl space-y-10 px-4 py-14 sm:px-6">
       <h1 className="text-3xl font-semibold tracking-tight">{eventType?.name ?? ""}</h1>
-
-      {notice && (
-        <p role="status" className="border-l-2 border-primary pl-4 text-sm">
-          {notice}
-        </p>
-      )}
 
       <div className="grid gap-12 lg:grid-cols-[1fr_1.5fr_1.2fr] lg:gap-10">
         <aside className="space-y-6">
@@ -240,10 +276,7 @@ function EventTypeView() {
                       disabled={busy}
                       aria-label={busy ? `${time} занято` : time}
                       aria-pressed={picked}
-                      onClick={() => {
-                        setChosen(slot);
-                        setNotice("");
-                      }}
+                      onClick={() => setChosen(slot)}
                       className={cn(
                         "flex w-full items-center justify-between px-3 py-2.5 text-sm tabular-nums outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
                         busy ? "bg-muted text-muted-foreground" : "hover:bg-muted",
