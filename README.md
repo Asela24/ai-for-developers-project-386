@@ -1,5 +1,6 @@
 # EasyBook
 
+**Демо: https://easybook-zcmj.onrender.com** (бесплатный инстанс Render засыпает при простое, первое открытие может занять до минуты)
 
 [![hexlet-check](https://github.com/Asela24/ai-for-developers-project-386/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Asela24/ai-for-developers-project-386/actions)
 
@@ -54,6 +55,8 @@ docker run --rm -e PORT=8080 -p 8080:8080 easybook
 Данные хранятся в памяти сервера и **сбрасываются при каждом перезапуске**: брони пропадают, типы событий возвращаются к стандартным. На бесплатном тарифе Render инстанс засыпает после простоя, и пробуждение — это тоже перезапуск.
 
 ## Деплой
+
+Публичная ссылка: https://easybook-zcmj.onrender.com
 
 Приложение развёрнуто на [Render](https://render.com) как Web Service (Docker, бесплатный тариф) из ветки `main`, каждый коммит в `main` деплоится автоматически. `PORT` Render задаёт сам.
 
