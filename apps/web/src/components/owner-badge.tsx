@@ -15,9 +15,3 @@ export function OwnerBadge() {
     </div>
   );
 }
-
-export function Duration({ minutes }: { minutes: number }) {
-  return (
-    <span className="shrink-0 text-sm text-muted-foreground tabular-nums">{`${minutes} мин`}</span>
-  );
-}

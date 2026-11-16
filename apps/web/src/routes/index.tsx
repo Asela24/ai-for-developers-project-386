@@ -13,22 +13,24 @@ function Home() {
   return (
     <main className="mx-auto grid max-w-5xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-[1.4fr_1fr] md:gap-16">
       <section className="space-y-6">
-        <p className="text-sm text-muted-foreground">Быстрое бронирование времени</p>
+        <span className="inline-block rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground">
+          Быстрое бронирование времени
+        </span>
         <h1 className="text-4xl font-semibold tracking-tight">EasyBook</h1>
         <p className="max-w-md text-muted-foreground">
           Забронируйте время с Owner за минуту: выберите тип события и свободный Slot.
         </p>
         <Link to="/event-types" className={buttonVariants({ className: "h-10 px-5" })}>
-          Забронировать →
+          Записаться →
         </Link>
       </section>
-      <section aria-labelledby="features" className="md:border-l md:pl-12">
-        <h2 id="features" className="mb-4 text-sm font-medium">
+      <section aria-labelledby="features" className="self-start rounded-xl border bg-card p-6">
+        <h2 id="features" className="mb-4 font-medium">
           Возможности
         </h2>
         <ul className="divide-y text-sm text-muted-foreground">
           {features.map((feature) => (
-            <li key={feature} className="py-3 first:pt-0">
+            <li key={feature} className="py-3 first:pt-0 last:pb-0">
               {feature}
             </li>
           ))}

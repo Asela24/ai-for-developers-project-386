@@ -10,7 +10,8 @@ import {
   type EventType,
   type OwnerBooking,
 } from "@/client";
-import { Duration, OwnerBadge } from "@/components/owner-badge";
+import { Duration } from "@/components/duration";
+import { OwnerBadge } from "@/components/owner-badge";
 import { Button } from "@/components/ui/button";
 import { zone } from "@/lib/booking-days";
 

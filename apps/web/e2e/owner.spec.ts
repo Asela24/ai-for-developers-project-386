@@ -100,7 +100,7 @@ test("Owner creates an Event type, sees and deletes its Bookings, then deletes t
   await expect(types.getByText("Вводная сессия")).toHaveCount(0);
   await expect(upcoming.getByText("nina@example.com")).toHaveCount(0);
 
-  await page.getByRole("link", { name: "Забронировать" }).first().click();
+  await page.getByRole("link", { name: "Записаться", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Выберите тип события" })).toBeVisible();
   await expect(page.getByText("Вводная сессия")).toHaveCount(0);
 });

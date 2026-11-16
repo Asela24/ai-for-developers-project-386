@@ -9,7 +9,8 @@ import {
   type EventType,
   type Slot,
 } from "@/client";
-import { Duration, OwnerBadge } from "@/components/owner-badge";
+import { Duration } from "@/components/duration";
+import { OwnerBadge } from "@/components/owner-badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { monthGrid, monthsOf, slotsByDay, zone } from "@/lib/booking-days";
 

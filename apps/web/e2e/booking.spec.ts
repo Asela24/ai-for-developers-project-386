@@ -28,7 +28,7 @@ test("Guest books a free Slot and the Owner sees it in the upcoming Bookings", a
   const time = timeOf(start);
 
   await page.goto("/");
-  await page.getByRole("link", { name: "Забронировать →" }).click();
+  await page.getByRole("link", { name: "Записаться →" }).click();
   await expect(page.getByRole("heading", { name: "Выберите тип события" })).toBeVisible();
   await expect(page.getByText("Подробный разбор задачи")).toBeVisible();
   const card = page.getByRole("link", { name: "Разбор" });

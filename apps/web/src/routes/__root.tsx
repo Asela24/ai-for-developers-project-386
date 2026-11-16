@@ -14,7 +14,7 @@ function Layout() {
           </Link>
           <nav className="flex items-center gap-6">
             <Link to="/event-types" className={navLink} activeProps={{ className: navActive }}>
-              Забронировать
+              Записаться
             </Link>
             <Link to="/owner" className={navLink} activeProps={{ className: navActive }}>
               Owner

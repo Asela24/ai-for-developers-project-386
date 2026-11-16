@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { listEventTypes, type EventType } from "@/client";
-import { Duration, OwnerBadge } from "@/components/owner-badge";
+import { Duration } from "@/components/duration";
+import { OwnerBadge } from "@/components/owner-badge";
 
 export const Route = createFileRoute("/event-types/")({ component: Catalog });
 
@@ -20,7 +21,7 @@ function Catalog() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-10 px-4 py-14 sm:px-6">
-      <header className="space-y-6">
+      <header className="space-y-6 rounded-xl border bg-card p-6">
         <OwnerBadge />
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight">Выберите тип события</h1>
@@ -30,22 +31,22 @@ function Catalog() {
         </div>
       </header>
 
-      <ul className="divide-y border-y">
+      <ul className="grid gap-4 sm:grid-cols-2">
         {eventTypes.map((eventType) => (
           <li key={eventType.id}>
             <Link
               to="/event-types/$eventTypeId"
               params={{ eventTypeId: eventType.id }}
               aria-label={eventType.name}
-              className="group flex items-start justify-between gap-6 py-5 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group block h-full space-y-2 rounded-xl border bg-card p-6 outline-none transition-colors hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <div className="space-y-1">
+              <div className="flex items-start justify-between gap-3">
                 <h2 className="font-medium transition-colors group-hover:text-primary">
                   {eventType.name}
                 </h2>
-                <p className="text-sm text-muted-foreground">{eventType.description}</p>
+                <Duration minutes={eventType.durationMinutes} />
               </div>
-              <Duration minutes={eventType.durationMinutes} />
+              <p className="text-sm text-muted-foreground">{eventType.description}</p>
             </Link>
           </li>
         ))}
