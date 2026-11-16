@@ -17,7 +17,7 @@ pnpm --filter server exec vitest run src/app.test.ts   # single test file
 
 - TypeScript is pinned to 5.x on purpose: tools that use the TS compiler API break on TS 7.
 - Server tests call `buildApp().inject(...)` from `src/app.ts`. No port is opened.
-- The web app calls the API under `/api`. The Vite dev server and nginx in Docker proxy it to the server with the prefix stripped.
+- The web app calls the API under `/api`. In dev the Vite server proxies it to the server with the prefix stripped. The Docker image is one process: with `WEB_ROOT` set, the server serves the built web app and mounts the API under `/api` itself.
 - The web app calls the API only through the generated SDK in `apps/web/src/client`.
 
 ## Generated files
