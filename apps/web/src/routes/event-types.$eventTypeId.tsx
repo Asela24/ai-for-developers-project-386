@@ -127,7 +127,7 @@ function EventTypeView() {
         </div>
         <dl className="space-y-4 border-t pt-6 text-sm">
           <div className="space-y-1">
-            <dt className="text-muted-foreground">Событие</dt>
+            <dt className="text-muted-foreground">Тип события</dt>
             <dd>{eventType?.name ?? ""}</dd>
           </div>
           <div className="space-y-1">

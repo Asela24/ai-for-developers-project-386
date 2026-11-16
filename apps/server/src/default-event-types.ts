@@ -5,7 +5,7 @@ export const defaultEventTypes: NonNullable<BuildAppOptions["eventTypes"]> = [
   {
     id: "intro-call",
     name: "Знакомство",
-    description: "Короткий созвон, чтобы обсудить задачу",
+    description: "Короткий разговор, чтобы обсудить задачу",
     durationMinutes: 30,
   },
   {
