@@ -38,6 +38,37 @@ mise run dev
 
 Приложение: http://localhost:5173. API проксируется под `/api`.
 
+## Docker
+
+Один образ из корневого `Dockerfile`: сервер отдаёт собранный фронтенд и API под `/api` на порту из переменной `PORT`.
+
+```bash
+docker build -t easybook .
+docker run --rm -e PORT=8080 -p 8080:8080 easybook
+```
+
+Приложение: http://localhost:8080.
+
+## Данные
+
+Данные хранятся в памяти сервера и **сбрасываются при каждом перезапуске**: брони пропадают, типы событий возвращаются к стандартным. На бесплатном тарифе Render инстанс засыпает после простоя, и пробуждение — это тоже перезапуск.
+
+## Деплой
+
+Приложение развёрнуто на [Render](https://render.com) как Web Service (Docker, бесплатный тариф) из ветки `main`, каждый коммит в `main` деплоится автоматически. `PORT` Render задаёт сам.
+
+## MCP
+
+В `.mcp.json` лежит проектная конфигурация MCP для Claude Code: [Render MCP](https://render.com/docs/mcp-server) для управления деплоем, логов и статуса сервиса. Ключа в файле нет, он берётся из переменной окружения.
+
+1. Создайте API key в Render: **Account Settings → API Keys → Create API Key**.
+2. Добавьте его в окружение, например в `~/.zshrc`, не в репозиторий:
+   ```bash
+   export RENDER_API_KEY=rnd_...
+   ```
+3. Запустите Claude Code в корне репозитория и разрешите проектный сервер `render`. `/mcp` покажет его статус.
+4. Выберите workspace: «Set my Render workspace to <имя>».
+
 ---
 
 <details>
