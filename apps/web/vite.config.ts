@@ -10,10 +10,16 @@ export default defineConfig({
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
   server: {
-    proxy: { "/api": { target: "http://localhost:3000", rewrite: (p) => p.replace(/^\/api/, "") } },
+    proxy: {
+      "/api": {
+        target: process.env.API_PROXY_TARGET ?? "http://localhost:3000",
+        rewrite: (p) => p.replace(/^\/api/, ""),
+      },
+    },
   },
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
+    exclude: ["**/node_modules/**", "**/dist/**", "e2e/**"],
   },
 });

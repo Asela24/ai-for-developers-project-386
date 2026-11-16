@@ -5,6 +5,10 @@
     "README.md",
     "README_LOCAL.md",
     "apps/web/src/routeTree.gen.ts",
+    // Generated contract output. Formatting it would make the staleness diff fail.
+    "apps/web/src/client",
+    "apps/server/src/openapi.gen.ts",
+    "openapi/openapi.yaml",
     "pnpm-lock.yaml"
   ]
 }

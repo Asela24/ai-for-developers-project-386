@@ -4,4 +4,6 @@ dist
 .env
 .DS_Store
 coverage
+apps/web/test-results
+apps/web/playwright-report
 
