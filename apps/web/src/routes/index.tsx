@@ -1,41 +1,41 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { listEventTypes, type EventType } from "@/client";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({ component: Home });
 
+const features = [
+  "Выбор типа события и свободного Slot в ближайшие 14 дней.",
+  "Бронирование за минуту: только имя и почта.",
+  "Страница Owner: типы событий и предстоящие бронирования.",
+];
+
 function Home() {
-  const [eventTypes, setEventTypes] = useState<EventType[]>([]);
-
-  useEffect(() => {
-    void listEventTypes()
-      .then((result) => {
-        if (result.data) setEventTypes(result.data);
-      })
-      .catch(() => {
-        // The heading stays up when the server is unreachable.
-      });
-  }, []);
-
   return (
-    <div className="space-y-12 py-6">
-      <header className="max-w-md space-y-4">
-        <h1 className="text-3xl font-semibold tracking-tight">EasyBook</h1>
-        <p className="text-muted-foreground">Виды брони</p>
-      </header>
-
-      <ul className="max-w-md space-y-4">
-        {eventTypes.map((eventType) => (
-          <li key={eventType.id} className="space-y-2 border-t pt-4">
-            <a href={`/event-types/${eventType.id}`} className={buttonVariants({ size: "lg" })}>
-              {eventType.name}
-            </a>
-            <p>{eventType.description}</p>
-            <p className="text-sm text-muted-foreground">{`${eventType.durationMinutes} минут`}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <main className="mx-auto grid max-w-5xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-[1.4fr_1fr] md:gap-16">
+      <section className="space-y-6">
+        <span className="inline-block rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground">
+          Быстрое бронирование времени
+        </span>
+        <h1 className="text-4xl font-semibold tracking-tight">EasyBook</h1>
+        <p className="max-w-md text-muted-foreground">
+          Забронируйте время с Owner за минуту: выберите тип события и свободный Slot.
+        </p>
+        <Link to="/event-types" className={buttonVariants({ className: "h-10 px-5" })}>
+          Записаться →
+        </Link>
+      </section>
+      <section aria-labelledby="features" className="self-start rounded-xl border bg-card p-6">
+        <h2 id="features" className="mb-4 font-medium">
+          Возможности
+        </h2>
+        <ul className="divide-y text-sm text-muted-foreground">
+          {features.map((feature) => (
+            <li key={feature} className="py-3 first:pt-0 last:pb-0">
+              {feature}
+            </li>
+          ))}
+        </ul>
+      </section>
+    </main>
   );
 }

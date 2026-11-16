@@ -7,11 +7,14 @@ import type { components, operations } from "./openapi.gen.js";
 import { createBookingStore, type StoredBooking } from "./booking-store.js";
 import { offeredSlots } from "./slots.js";
 
+type EventType = components["schemas"]["EventType"];
+
 export type BuildAppOptions = {
   now?: () => Date;
+  /** Event types the catalog starts with; the Owner can delete them like any other. */
+  eventTypes?: EventType[];
 };
 
-type EventType = components["schemas"]["EventType"];
 type CreateEventType = components["schemas"]["CreateEventType"];
 type Failure = components["schemas"]["Failure"];
 type Slot = components["schemas"]["Slot"];
@@ -79,8 +82,11 @@ const toOwnerBooking = (stored: StoredBooking): OwnerBooking => ({
 });
 
 // Tests pass a fixed `now`; the server uses the real clock.
-export const buildApp = ({ now = () => new Date() }: BuildAppOptions = {}) => {
-  const eventTypes: EventType[] = [];
+export const buildApp = ({
+  now = () => new Date(),
+  eventTypes: initialEventTypes = [],
+}: BuildAppOptions = {}) => {
+  const eventTypes: EventType[] = initialEventTypes.map((eventType) => ({ ...eventType }));
   const bookings = createBookingStore();
   const app = Fastify({
     logger: process.env.NODE_ENV !== "test",

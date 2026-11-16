@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { dayNameOf, openDay, slotList, timeOf } from "./guest-view";
 import { apiPort } from "./ports";
 
 const api = `http://127.0.0.1:${apiPort}`;
-const zone = "Europe/Belgrade";
 
 const createEventType = async (id: string, name: string, description: string) => {
   const res = await fetch(`${api}/event-types`, {
@@ -38,25 +38,15 @@ test("a Slot booked through another Event type shows as busy", async ({ page }) 
   });
   expect(booked.status).toBe(201);
 
-  const when = new Date(start);
-  const dayName = new Intl.DateTimeFormat("ru-RU", {
-    timeZone: zone,
-    weekday: "short",
-    day: "numeric",
-    month: "long",
-  }).format(when);
-  const time = new Intl.DateTimeFormat("ru-RU", {
-    timeZone: zone,
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).format(when);
+  const dayName = dayNameOf(start);
+  const time = timeOf(start);
 
-  await page.goto("/");
+  await page.goto("/event-types");
   await page.getByRole("link", { name: "Ревью кода" }).click();
-  await expect(page.getByRole("heading", { name: "Ревью кода" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ревью кода", level: 1 })).toBeVisible();
 
-  const day = page.getByRole("region", { name: dayName });
+  await openDay(page, dayName);
+  const day = slotList(page);
   await expect(day.getByRole("button", { name: `${time} занято` })).toBeDisabled();
   await expect(day.getByRole("button", { name: time, exact: true })).toHaveCount(0);
   await expect(page.getByText("anna@example.com")).toHaveCount(0);
