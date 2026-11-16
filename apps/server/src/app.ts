@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
+import fastifyStatic from "@fastify/static";
 import openapiGlue from "fastify-openapi-glue";
 import type { components, operations } from "./openapi.gen.js";
 import { createBookingStore, type StoredBooking } from "./booking-store.js";
@@ -13,6 +14,11 @@ export type BuildAppOptions = {
   now?: () => Date;
   /** Event types the catalog starts with; the Owner can delete them like any other. */
   eventTypes?: EventType[];
+  /**
+   * Built web app to serve from `/`, with the API moved under `/api`: one process on one
+   * port, as in the Docker image. Without it the API sits at the root and Vite proxies to it.
+   */
+  webRoot?: string;
 };
 
 type CreateEventType = components["schemas"]["CreateEventType"];
@@ -85,7 +91,9 @@ const toOwnerBooking = (stored: StoredBooking): OwnerBooking => ({
 export const buildApp = ({
   now = () => new Date(),
   eventTypes: initialEventTypes = [],
+  webRoot,
 }: BuildAppOptions = {}) => {
+  const apiPrefix = webRoot ? "/api" : "";
   const eventTypes: EventType[] = initialEventTypes.map((eventType) => ({ ...eventType }));
   const bookings = createBookingStore();
   const app = Fastify({
@@ -113,6 +121,7 @@ export const buildApp = ({
 
   app.register(openapiGlue, {
     specification: openApiSpecPath(),
+    prefix: apiPrefix,
     serviceHandlers: {
       listEventTypes: () => eventTypes,
       createEventType: (request: FastifyRequest, reply: FastifyReply) => {
@@ -183,6 +192,16 @@ export const buildApp = ({
     },
   });
 
-  app.get("/health", async () => ({ status: "ok" }));
+  app.get(`${apiPrefix}/health`, async () => ({ status: "ok" }));
+
+  if (webRoot) {
+    app.register(fastifyStatic, { root: webRoot });
+    // Client-side routes (/owner, …) get index.html; unknown API paths stay a 404.
+    app.setNotFoundHandler((request, reply) =>
+      request.method === "GET" && !request.url.startsWith(`${apiPrefix}/`)
+        ? reply.sendFile("index.html")
+        : reply.code(404).send(),
+    );
+  }
   return app;
 };
