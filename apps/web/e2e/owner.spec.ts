@@ -68,6 +68,16 @@ test("Owner creates an Event type, sees and deletes its Bookings, then deletes t
   await expect(page.getByRole("alert")).toHaveText("Проверьте данные и попробуйте ещё раз.");
   await expect(types.getByText("Повтор")).toHaveCount(0);
 
+  // The description may be empty (spec #6).
+  await form.getByLabel("Id", { exact: true }).fill("owner-no-description");
+  await form.getByLabel("Название").fill("Без описания");
+  await form.getByLabel("Описание").fill("");
+  await form.getByLabel("Длительность, минут").fill("15");
+  await form.getByRole("button", { name: "Создать" }).click();
+  await expect(types.getByRole("listitem").filter({ hasText: "Без описания" })).toContainText(
+    "15 мин",
+  );
+
   const firstInterval = await bookAsGuest("owner-intro", "Олег", "oleg@example.com");
   await page.reload();
   const upcoming = page.getByRole("region", { name: "Предстоящие бронирования" });

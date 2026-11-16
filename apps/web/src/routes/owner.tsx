@@ -134,7 +134,7 @@ function OwnerPage() {
               <span className="text-muted-foreground">Описание</span>
               <textarea
                 className={cn(inputClass, "h-20 py-2")}
-                required
+                maxLength={2000}
                 {...field("description")}
               />
             </label>
@@ -143,7 +143,8 @@ function OwnerPage() {
               <input
                 className={inputClass}
                 type="number"
-                min={1}
+                min={15}
+                max={540}
                 required
                 {...field("durationMinutes")}
               />
