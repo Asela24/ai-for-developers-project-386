@@ -25,7 +25,7 @@ function Catalog() {
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight">Выберите тип события</h1>
           <p className="text-sm text-muted-foreground">
-            Нажмите на карточку, чтобы выбрать день и свободный Slot.
+            Нажмите на тип события, чтобы выбрать день и свободный Slot.
           </p>
         </div>
       </header>
